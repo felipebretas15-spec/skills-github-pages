@@ -399,6 +399,7 @@
         atualizarContadores();
 
         // Notifica admins por e-mail (fire-and-forget)
+        console.log('[pedidos-admin] chamando notificarAdmins, tipo: pedido_status');
         notificarAdmins(sb, {
           tipo: 'pedido_status',
           numero: String(p?.numero || '').padStart(4, '0'),

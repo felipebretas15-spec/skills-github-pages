@@ -1,3 +1,5 @@
+console.log('[notificacoes.js] arquivo carregado');
+
 // ── Notificações de e-mail via Google Apps Script ────────────────
 // O GAS funciona como relay: recebe { to_email, subject, html_body }
 // e envia diretamente, sem lógica de roteamento.
