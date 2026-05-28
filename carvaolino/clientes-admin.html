@@ -101,6 +101,20 @@
     .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    /* Form de alteração de senha */
+    .btn-chave{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--gray);font-size:.8rem;padding:4px 9px;border-radius:4px;cursor:pointer;line-height:1;transition:border-color .2s,color .2s;}
+    .btn-chave:hover{border-color:var(--ember);color:var(--ember);}
+    .senha-form{display:none;background:rgba(255,255,255,.02);border:1px dashed rgba(217,0,0,.2);border-radius:0 0 8px 8px;padding:14px 16px;margin-top:-2px;}
+    .senha-form.aberto{display:block;}
+    .senha-form-grid{display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;}
+    .btn-salvar-senha{background:linear-gradient(135deg,var(--red),var(--red2));border:none;color:#fff;font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;border-radius:5px;cursor:pointer;white-space:nowrap;}
+    .btn-salvar-senha:disabled{opacity:.45;cursor:not-allowed;}
+    .btn-cancelar-senha{background:transparent;border:1px solid rgba(255,255,255,.1);color:var(--gray);font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:10px 14px;border-radius:5px;cursor:pointer;white-space:nowrap;}
+    .btn-cancelar-senha:hover{border-color:var(--gray);color:#ccc;}
+    .msg-senha{margin-top:8px;padding:7px 12px;border-radius:5px;font-size:.75rem;display:none;}
+    .msg-senha.ok  {background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#81c784;}
+    .msg-senha.erro{background:rgba(217,0,0,.1);border:1px solid rgba(217,0,0,.3);color:var(--ember);}
+
     /* Estado do usuário */
     .usuario-item.inativo{opacity:.45;}
     .usuario-item.inativo .usuario-nome{text-decoration:line-through;}
@@ -121,6 +135,7 @@
       .form-grid{grid-template-columns:1fr;}
       .usuario-form-grid{grid-template-columns:1fr;}
       .btn-primary,.btn-add-user{width:100%;}
+      .senha-form-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -333,7 +348,17 @@
                 <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
                   <span class="${badgeClass}">${badgeText}</span>
                   ${btnToggle}
+                  <button class="btn-chave" onclick="toggleSenha('${u.id}')" title="Alterar senha">🔑</button>
                 </div>
+              </div>
+              <div class="senha-form" id="sf-${u.id}">
+                <div class="senha-form-grid">
+                  <input type="password" id="sp-${u.id}" placeholder="Nova senha (mín. 6 caracteres)" />
+                  <input type="password" id="sc-${u.id}" placeholder="Confirmar nova senha" />
+                  <button class="btn-salvar-senha" onclick="salvarSenha('${u.id}')">Salvar</button>
+                  <button class="btn-cancelar-senha" onclick="toggleSenha('${u.id}')">Cancelar</button>
+                </div>
+                <div class="msg-senha" id="sm-${u.id}"></div>
               </div>`;
             }).join('')
           : '<div class="empty-users">Nenhum usuário vinculado ainda.</div>';
@@ -446,8 +471,19 @@
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
             <span class="usuario-badge${tipoUsuario === 'admin' ? ' admin' : ''}">${tipoUsuario === 'admin' ? 'Administrador' : 'Cliente'}</span>
             ${novoUserId && novoUserId !== meuId ? `<button class="btn-toggle-user desativar" onclick="toggleUsuario('${novoUserId}', false)">Desativar</button>` : ''}
+            ${novoUserId ? `<button class="btn-chave" onclick="toggleSenha('${novoUserId}')" title="Alterar senha">🔑</button>` : ''}
           </div>
-        </div>`;
+        </div>
+        ${novoUserId ? `
+        <div class="senha-form" id="sf-${novoUserId}">
+          <div class="senha-form-grid">
+            <input type="password" id="sp-${novoUserId}" placeholder="Nova senha (mín. 6 caracteres)" />
+            <input type="password" id="sc-${novoUserId}" placeholder="Confirmar nova senha" />
+            <button class="btn-salvar-senha" onclick="salvarSenha('${novoUserId}')">Salvar</button>
+            <button class="btn-cancelar-senha" onclick="toggleSenha('${novoUserId}')">Cancelar</button>
+          </div>
+          <div class="msg-senha" id="sm-${novoUserId}"></div>
+        </div>` : ''}`;
       ul.querySelector('.empty-users')?.remove();
       ul.insertAdjacentHTML('beforeend', novoItem);
 
@@ -466,6 +502,57 @@
         ${atual} usuário${atual !== 1 ? 's' : ''}`;
 
       showMsg(msg, 'ok', `Usuário "${nome}" criado e vinculado com sucesso!`);
+    }
+
+    /* ── Alterar senha ── */
+    function toggleSenha(userId) {
+      const form = document.getElementById(`sf-${userId}`);
+      if (!form) return;
+      const abrindo = !form.classList.contains('aberto');
+      form.classList.toggle('aberto');
+      if (abrindo) {
+        document.getElementById(`sp-${userId}`)?.focus();
+      } else {
+        document.getElementById(`sp-${userId}`).value = '';
+        document.getElementById(`sc-${userId}`).value = '';
+        const msg = document.getElementById(`sm-${userId}`);
+        if (msg) msg.style.display = 'none';
+      }
+    }
+
+    async function salvarSenha(userId) {
+      const senha    = document.getElementById(`sp-${userId}`).value;
+      const confirma = document.getElementById(`sc-${userId}`).value;
+      const msg      = document.getElementById(`sm-${userId}`);
+      const btnSalvar = document.querySelector(`#sf-${userId} .btn-salvar-senha`);
+
+      if (senha.length < 6)    { showMsgSenha(msg, 'erro', 'A senha deve ter no mínimo 6 caracteres.'); return; }
+      if (senha !== confirma)  { showMsgSenha(msg, 'erro', 'As senhas não conferem.'); return; }
+
+      btnSalvar.disabled = true; btnSalvar.textContent = 'Salvando...';
+
+      const { data, error } = await sb.rpc('alterar_senha_usuario', {
+        p_user_id: userId,
+        p_password: senha
+      });
+
+      btnSalvar.disabled = false; btnSalvar.textContent = 'Salvar';
+
+      if (error || !data?.success) {
+        showMsgSenha(msg, 'erro', data?.error || error?.message || 'Erro ao alterar senha.');
+        return;
+      }
+
+      showMsgSenha(msg, 'ok', 'Senha alterada com sucesso!');
+      document.getElementById(`sp-${userId}`).value = '';
+      document.getElementById(`sc-${userId}`).value = '';
+      setTimeout(() => toggleSenha(userId), 2000);
+    }
+
+    function showMsgSenha(el, tipo, txt) {
+      el.textContent = txt;
+      el.className = 'msg-senha ' + tipo;
+      el.style.display = 'block';
     }
 
     /* ── Ativar / Desativar usuário ── */
