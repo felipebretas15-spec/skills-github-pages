@@ -151,6 +151,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="inatividade.js"></script>
   <script>
     const { createClient } = supabase;
     const sb = createClient(
@@ -165,6 +166,7 @@
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
+      initInatividade(sb);
       sessao = session;
 
       await carregarProdutos();

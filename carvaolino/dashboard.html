@@ -368,6 +368,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="inatividade.js"></script>
   <script>
     const { createClient } = supabase;
     const sb = createClient(
@@ -383,6 +384,7 @@
         return;
       }
 
+      initInatividade(sb);
       const user = session.user;
 
       // Busca perfil
