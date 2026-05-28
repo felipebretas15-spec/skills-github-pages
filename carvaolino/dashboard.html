@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard – Carvão Lino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:   #d90000;
+      --red2:  #ff2200;
+      --ember: #ff6a00;
+      --black: #0a0a0a;
+      --dark:  #111111;
+      --card:  #161616;
+      --gray:  #888888;
+      --white: #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: rgba(10,10,10,0.95);
+      border-bottom: 1px solid rgba(217,0,0,0.25);
+      backdrop-filter: blur(10px);
+      padding: 0 5%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo img {
+      height: 44px;
+      width: auto;
+      filter: drop-shadow(0 0 8px rgba(217,0,0,0.3));
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .user-role {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--ember);
+    }
+
+    .btn-logout {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 7px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-logout:hover { border-color: var(--red2); color: var(--red2); }
+    .btn-logout svg { width: 15px; height: 15px; }
+
+    /* ── Fundo ── */
+    .page-bg {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 5% 80px;
+      overflow: hidden;
+    }
+
+    .page-bg::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 100%, #3a0000 0%, #150000 40%, #0a0a0a 70%);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .page-bg::after {
+      content: 'LINO';
+      position: fixed;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38vw;
+      color: rgba(217,0,0,0.03);
+      bottom: -5%; right: -5%;
+      pointer-events: none;
+      letter-spacing: 10px;
+      z-index: 0;
+    }
+
+    /* ── Boas-vindas ── */
+    .welcome {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .welcome-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--red2);
+      margin-bottom: 10px;
+    }
+
+    .welcome-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      letter-spacing: 2px;
+      line-height: 1;
+    }
+
+    .welcome-title span { color: var(--red2); }
+
+    .welcome-sub {
+      font-size: 0.88rem;
+      color: var(--gray);
+      margin-top: 10px;
+    }
+
+    .divider {
+      width: 50px; height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--red2));
+      border-radius: 2px;
+      margin: 16px auto 0;
+    }
+
+    /* ── Cards ── */
+    .cards-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .dash-card {
+      background: var(--card);
+      border: 1px solid rgba(217,0,0,0.15);
+      border-radius: 16px;
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--white);
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      cursor: pointer;
+    }
+
+    .dash-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 60px rgba(217,0,0,0.2);
+      border-color: rgba(217,0,0,0.5);
+    }
+
+    .card-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      background: rgba(217,0,0,0.1);
+      border: 1px solid rgba(217,0,0,0.25);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .dash-card:hover .card-icon {
+      background: rgba(217,0,0,0.2);
+      box-shadow: 0 0 24px rgba(217,0,0,0.25);
+    }
+
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 2px;
+    }
+
+    .card-desc {
+      font-size: 0.83rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .card-btn {
+      margin-top: 8px;
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 11px 28px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(217,0,0,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .card-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,34,0,0.45);
+    }
+
+    /* ── Loading overlay ── */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: opacity 0.4s;
+    }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(217,0,0,0.2);
+      border-top-color: var(--red2);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .user-info { display: none; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading -->
+  <div id="loading"><div class="spinner"></div></div>
+
+  <!-- Header -->
+  <header>
+    <a href="index.html" class="header-logo">
+      <img src="logo.png" alt="Carvão Lino" />
+    </a>
+    <div class="header-right">
+      <div class="user-info">
+        <span class="user-name" id="user-name">Carregando...</span>
+        <span class="user-role" id="user-role">–</span>
+      </div>
+      <button class="btn-logout" id="btn-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
+  </header>
+
+  <!-- Conteúdo -->
+  <div class="page-bg">
+
+    <div class="welcome">
+      <p class="welcome-label">Painel de controle</p>
+      <h1 class="welcome-title">Bem-vindo, <span id="first-name">–</span></h1>
+      <p class="welcome-sub">O que deseja fazer hoje?</p>
+      <div class="divider"></div>
+    </div>
+
+    <div class="cards-grid">
+
+      <!-- Criar Pedido -->
+      <div class="dash-card">
+        <div class="card-icon">🛒</div>
+        <div class="card-title">Criar Pedido</div>
+        <p class="card-desc">Registre um novo pedido de carvão ou lenha para um cliente.</p>
+        <a href="pedido-novo.html" class="card-btn">Novo Pedido</a>
+      </div>
+
+      <!-- Verificar Pedidos -->
+      <div class="dash-card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">Meus Pedidos</div>
+        <p class="card-desc">Consulte o histórico e o status de todos os pedidos realizados.</p>
+        <a href="pedidos.html" class="card-btn">Ver Pedidos</a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://vjqautajuqvchhyxhbij.supabase.co',
+      'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
+    );
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const user = session.user;
+
+      // Busca perfil
+      const { data: profile } = await sb.from('profiles')
+        .select('nome, tipo')
+        .eq('id', user.id)
+        .single();
+
+      const nome  = profile?.nome || user.email.split('@')[0];
+      const tipo  = profile?.tipo || 'cliente';
+      const primeiro = nome.split(' ')[0];
+
+      document.getElementById('user-name').textContent  = nome;
+      document.getElementById('user-role').textContent  = tipo === 'admin' ? 'Administrador' : 'Cliente';
+      document.getElementById('first-name').textContent = primeiro;
+
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+    }
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
+    init();
+  </script>
+
+</body>
+</html>
