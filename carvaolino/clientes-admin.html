@@ -585,7 +585,7 @@
       const acao = estaInativo ? 'ativar' : 'desativar';
       if (!confirm(`Confirma ${acao} este usuário?`)) return;
 
-      const novoEstado = !estaInativo; // true = ativo, false = inativo
+      const novoEstado = estaInativo; // estaInativo=false → novoAtivo=false; estaInativo=true → novoAtivo=true
       const { error } = await sb.from('profiles').update({ ativo: novoEstado }).eq('id', userId);
       if (error) { alert('Erro ao atualizar usuário.'); return; }
 
