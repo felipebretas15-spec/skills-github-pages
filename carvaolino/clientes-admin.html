@@ -368,33 +368,25 @@
       btn.disabled = true; btn.textContent = 'Criando...';
       msg.style.display = 'none';
 
-      // Cria o usuário no Supabase Auth
-      const { data, error } = await sb.auth.signUp({ email, password: senha });
+      // Cria o usuário via função SQL (sem envio de e-mail)
+      const { data, error } = await sb.rpc('criar_usuario_cliente', {
+        p_email: email,
+        p_password: senha,
+        p_nome: nome,
+        p_cliente_id: clienteId
+      });
 
       if (error) {
         btn.disabled = false; btn.textContent = '+ Criar';
-        const erros = {
-          'User already registered': 'Este e-mail já está cadastrado.',
-          'Password should be at least 6 characters': 'A senha deve ter ao menos 6 caracteres.',
-          'Signups not allowed for this instance': 'Cadastros desativados no Supabase. Ative em Authentication → Settings → Enable email signups.',
-          'Email signups are disabled': 'Cadastros por e-mail desativados. Ative em Authentication → Providers → Email.',
-          'Anonymous sign-ins are disabled': 'Erro de configuração. Verifique as opções de autenticação no Supabase.'
-        };
-        showMsg(msg, 'erro', erros[error.message] || `Erro: ${error.message}`);
+        showMsg(msg, 'erro', `Erro: ${error.message}`);
         return;
       }
 
-      const userId = data.user?.id;
-      if (!userId) {
+      if (!data.success) {
         btn.disabled = false; btn.textContent = '+ Criar';
-        showMsg(msg, 'erro', 'Usuário criado, mas não foi possível vincular. Verifique no painel do Supabase.');
+        showMsg(msg, 'erro', data.error || 'Erro ao criar usuário.');
         return;
       }
-
-      // Vincula ao cliente e define tipo = 'cliente'
-      await sb.from('profiles').upsert({
-        id: userId, nome, email, tipo: 'cliente', cliente_id: clienteId
-      }, { onConflict: 'id' });
 
       // Atualiza a lista de usuários do card sem recarregar tudo
       const ul = document.getElementById(`ul-${clienteId}`);
