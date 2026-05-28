@@ -60,10 +60,14 @@ function buildEmailPedidoStatus(dados, adminNome) {
 // dados → { tipo, numero, cliente, usuario, total, ... }
 async function notificarAdmins(sb, dados) {
   try {
+    console.log('[notificarAdmins] chamado com tipo:', dados.tipo);
+
     const { data: admins } = await sb.from('profiles')
       .select('nome, email')
       .eq('tipo', 'admin')
       .eq('ativo', true);
+
+    console.log('[notificarAdmins] admins encontrados:', admins?.length ?? 0);
     if (!admins?.length) return;
 
     admins.forEach(admin => {
@@ -73,21 +77,25 @@ async function notificarAdmins(sb, dados) {
       } else if (dados.tipo === 'pedido_status') {
         email = buildEmailPedidoStatus(dados, admin.nome);
       } else {
-        return; // tipo desconhecido — não envia
+        console.warn('[notificarAdmins] tipo desconhecido:', dados.tipo);
+        return;
       }
+
+      const payload = {
+        to_email:  admin.email,
+        subject:   email.subject,
+        html_body: email.html_body
+      };
+      console.log('[notificarAdmins] enviando para:', admin.email, '| subject:', email.subject);
 
       fetch(EMAIL_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({
-          to_email:  admin.email,
-          subject:   email.subject,
-          html_body: email.html_body
-        })
+        body: JSON.stringify(payload)
       });
     });
   } catch (e) {
-    console.warn('Notificação não enviada:', e);
+    console.warn('[notificarAdmins] erro:', e);
   }
 }
