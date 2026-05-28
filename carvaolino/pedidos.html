@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meus Pedidos – Carvão Lino</title>
+  <title>Pedidos – Carvão Lino</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
@@ -47,6 +47,11 @@
     .pedido-total{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red2);}
     .chevron{transition:transform .3s;color:var(--gray);}
     .pedido-card.aberto .chevron{transform:rotate(180deg);}
+
+    /* Info do cliente (visível apenas para admin) */
+    .pedido-cliente-info{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+    .pedido-cliente-nome{font-size:.83rem;font-weight:700;color:var(--white);}
+    .pedido-cliente-email{font-size:.72rem;color:var(--gray);}
 
     /* Itens (colapsável) */
     .pedido-itens{display:none;border-top:1px solid rgba(255,255,255,.05);}
@@ -97,8 +102,8 @@
   </header>
 
   <main>
-    <p class="page-label">Histórico</p>
-    <h1 class="page-title">Meus <span>Pedidos</span></h1>
+    <p class="page-label" id="page-label">Histórico</p>
+    <h1 class="page-title" id="page-title">Meus <span>Pedidos</span></h1>
     <div class="divider"></div>
     <div id="pedidos-lista" class="pedidos-lista">
       <div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando pedidos...</div></div>
@@ -124,19 +129,32 @@
 
     const CANCELAVEL = ['criado', 'processando'];
 
+    // Estado global para reutilizar em cancelarPedido
+    let isAdmin = false;
+    let meuId   = null;
+
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
       initInatividade(sb);
 
-      const { data: profile } = await sb.from('profiles').select('tipo').eq('id', session.user.id).single();
-      const isAdmin = profile?.tipo === 'admin';
+      meuId = session.user.id;
 
+      const { data: profile } = await sb.from('profiles').select('tipo').eq('id', meuId).single();
+      isAdmin = profile?.tipo === 'admin';
+
+      // Ajusta título da página conforme perfil
+      if (isAdmin) {
+        document.getElementById('page-label').textContent = 'Admin';
+        document.getElementById('page-title').innerHTML = 'Todos os <span>Pedidos</span>';
+      }
+
+      // Admin busca todos; cliente busca apenas os próprios
       let query = sb.from('pedidos')
         .select('*, pedidos_itens(nome_produto, preco_unitario, quantidade, subtotal)')
         .order('created_at', { ascending: false });
 
-      if (!isAdmin) query = query.eq('created_by', session.user.id);
+      if (!isAdmin) query = query.eq('created_by', meuId);
 
       const { data: pedidos, error } = await query;
 
@@ -146,21 +164,41 @@
       const lista = document.getElementById('pedidos-lista');
 
       if (error || !pedidos || !pedidos.length) {
-        lista.innerHTML = `
-          <div class="empty-state">
-            <div class="icon">📋</div>
-            <div>Você ainda não fez nenhum pedido.</div>
-            <div style="margin-top:12px;"><a href="pedido-novo.html">Criar meu primeiro pedido →</a></div>
-          </div>`;
+        lista.innerHTML = isAdmin
+          ? '<div class="empty-state"><div class="icon">📦</div><div>Nenhum pedido cadastrado.</div></div>'
+          : `<div class="empty-state">
+               <div class="icon">📋</div>
+               <div>Você ainda não fez nenhum pedido.</div>
+               <div style="margin-top:12px;"><a href="pedido-novo.html">Criar meu primeiro pedido →</a></div>
+             </div>`;
         return;
       }
 
+      // Admin: carrega nomes dos clientes para exibir nos cards
+      let perfilMap = {};
+      if (isAdmin) {
+        const ids = [...new Set(pedidos.map(p => p.created_by).filter(Boolean))];
+        const { data: perfis } = await sb.from('profiles').select('id, nome, email').in('id', ids);
+        perfilMap = Object.fromEntries((perfis || []).map(p => [p.id, p]));
+      }
+
       lista.innerHTML = pedidos.map(p => {
-        const num  = '#' + String(p.numero).padStart(4, '0');
-        const data = new Date(p.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+        const num   = '#' + String(p.numero).padStart(4, '0');
+        const data  = new Date(p.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
         const total = 'R$ ' + parseFloat(p.total).toFixed(2).replace('.', ',');
         const badge = `<span class="badge badge-${p.status}">${STATUS_LABEL[p.status] || p.status}</span>`;
-        const cancelavel = CANCELAVEL.includes(p.status);
+
+        // Botão de cancelar só para clientes (não-admin) em pedidos canceláveis
+        const podeCancelar = !isAdmin && CANCELAVEL.includes(p.status);
+
+        // Bloco de info do cliente (apenas para admin)
+        const perfil = isAdmin ? (perfilMap[p.created_by] || null) : null;
+        const clienteInfo = perfil
+          ? `<div class="pedido-cliente-info">
+               <span class="pedido-cliente-nome">${perfil.nome || '—'}</span>
+               <span class="pedido-cliente-email">${perfil.email || ''}</span>
+             </div>`
+          : '';
 
         const linhasItens = (p.pedidos_itens || []).map(i => `
           <tr>
@@ -176,6 +214,7 @@
               <div class="pedido-header-left">
                 <div class="pedido-numero">${num}</div>
                 <div>
+                  ${clienteInfo}
                   ${badge}
                   <div class="pedido-data" style="margin-top:5px;">${data}</div>
                 </div>
@@ -201,7 +240,7 @@
                     <div class="itens-total-label">Total do Pedido</div>
                     <div class="itens-total-valor">${total}</div>
                   </div>
-                  ${cancelavel ? `<button class="btn-cancelar" onclick="cancelarPedido('${p.id}')">Cancelar Pedido</button>` : ''}
+                  ${podeCancelar ? `<button class="btn-cancelar" onclick="cancelarPedido('${p.id}')">Cancelar Pedido</button>` : ''}
                 </div>
               </div>
             </div>
@@ -216,13 +255,16 @@
     async function cancelarPedido(id) {
       if (!confirm('Confirma o cancelamento deste pedido?')) return;
 
-      const { error } = await sb.from('pedidos')
+      // Garante no frontend que só o dono pode cancelar (RLS garante no banco)
+      let query = sb.from('pedidos')
         .update({ status: 'cancelado_usuario', updated_at: new Date().toISOString() })
-        .eq('id', id);
+        .eq('id', id)
+        .eq('created_by', meuId);
+
+      const { error } = await query;
 
       if (error) { alert('Erro ao cancelar. Tente novamente.'); return; }
 
-      // Atualiza o badge e remove botão sem recarregar
       const card = document.getElementById(`ped-${id}`);
       card.querySelector('.badge').className = 'badge badge-cancelado_usuario';
       card.querySelector('.badge').textContent = STATUS_LABEL.cancelado_usuario;
