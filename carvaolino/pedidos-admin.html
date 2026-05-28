@@ -373,6 +373,10 @@
       const btn = sel.closest('.footer-acoes').querySelector('.btn-salvar-status');
       const novoStatus = sel.value;
 
+      // Captura status anterior antes de atualizar
+      const p = todosPedidos.find(x => x.id === id);
+      const statusAnterior = p?.status;
+
       btn.disabled = true;
       msg.style.display = 'none';
 
@@ -389,10 +393,20 @@
         badge.className = `badge badge-${novoStatus}`;
         badge.textContent = STATUS_LABEL[novoStatus];
 
-        // Atualiza o objeto local
-        const p = todosPedidos.find(x => x.id === id);
+        // Atualiza o objeto local e contadores
         if (p) p.status = novoStatus;
         atualizarContadores();
+
+        // Notifica admins por e-mail (fire-and-forget)
+        notificarAdmins({
+          tipo: 'pedido_status',
+          numero: String(p?.numero || '').padStart(4, '0'),
+          cliente: p?._cliente?.nome || '—',
+          usuario: p?._perfil?.nome  || p?._perfil?.email || '—',
+          status_anterior: STATUS_LABEL[statusAnterior] || statusAnterior || '—',
+          status_novo: STATUS_LABEL[novoStatus],
+          total: 'R$ ' + parseFloat(p?.total || 0).toFixed(2).replace('.', ',')
+        });
 
         msg.textContent = 'Status atualizado!';
         msg.className = 'msg-status ok';
@@ -401,6 +415,26 @@
 
       msg.style.display = 'block';
       btn.disabled = false;
+    }
+
+    // ── Notificação de e-mail para admins ──────────────────────
+    const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFABEFqzcb2s6McnpQIzIefEG7fGST1lXaQT26tbFaLLj-abRB1Ko2nZGp37kA1pmqlw/exec';
+
+    async function notificarAdmins(dados) {
+      try {
+        const { data: admins } = await sb.from('profiles')
+          .select('nome, email')
+          .eq('tipo', 'admin')
+          .eq('ativo', true);
+        if (!admins?.length) return;
+        admins.forEach(admin => {
+          fetch(EMAIL_SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ ...dados, to_email: admin.email, to_name: admin.nome })
+          });
+        });
+      } catch (e) { console.warn('Notificação não enviada:', e); }
     }
 
     init();

@@ -159,15 +159,45 @@
       'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
     );
 
-    let sessao = null;
-    let produtos = [];
-    let carrinho = {}; // { id: { ...produto, qtd } }
+    let sessao    = null;
+    let produtos  = [];
+    let carrinho  = {}; // { id: { ...produto, qtd } }
+    let meuPerfil = { nome: '', cliente: '' };
+
+    const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFABEFqzcb2s6McnpQIzIefEG7fGST1lXaQT26tbFaLLj-abRB1Ko2nZGp37kA1pmqlw/exec';
+
+    async function notificarAdmins(dados) {
+      try {
+        const { data: admins } = await sb.from('profiles')
+          .select('nome, email')
+          .eq('tipo', 'admin')
+          .eq('ativo', true);
+        if (!admins?.length) return;
+        admins.forEach(admin => {
+          fetch(EMAIL_SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ ...dados, to_email: admin.email, to_name: admin.nome })
+          });
+        });
+      } catch (e) { console.warn('Notificação não enviada:', e); }
+    }
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
       initInatividade(sb);
       sessao = session;
+
+      // Carrega nome do usuário e empresa para uso nas notificações
+      const { data: perfil } = await sb.from('profiles')
+        .select('nome, cliente_id').eq('id', sessao.user.id).single();
+      meuPerfil.nome = perfil?.nome || sessao.user.email || '';
+      if (perfil?.cliente_id) {
+        const { data: cli } = await sb.from('clientes')
+          .select('nome').eq('id', perfil.cliente_id).single();
+        meuPerfil.cliente = cli?.nome || '';
+      }
 
       await carregarProdutos();
 
@@ -290,6 +320,17 @@
       }
 
       const num = String(pedido.numero).padStart(4, '0');
+
+      // Notifica admins sobre o novo pedido (fire-and-forget)
+      notificarAdmins({
+        tipo: 'pedido_novo',
+        numero: num,
+        cliente: meuPerfil.cliente || '—',
+        usuario: meuPerfil.nome,
+        total: 'R$ ' + total.toFixed(2).replace('.', ','),
+        itens: itens.map(i => `${i.nome} (${i.qtd}x)`).join(', ')
+      });
+
       document.getElementById('modal-numero').textContent = '#' + num;
       document.getElementById('modal-sucesso').classList.add('aberto');
     });

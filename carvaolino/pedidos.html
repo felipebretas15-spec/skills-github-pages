@@ -129,9 +129,30 @@
 
     const CANCELAVEL = ['criado', 'processando'];
 
-    // Estado global para reutilizar em cancelarPedido
-    let isAdmin = false;
-    let meuId   = null;
+    // Estado global
+    let isAdmin      = false;
+    let meuId        = null;
+    let meuPerfil    = { nome: '', cliente: '' };
+    let listaPedidos = []; // para consulta no cancelamento
+
+    const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFABEFqzcb2s6McnpQIzIefEG7fGST1lXaQT26tbFaLLj-abRB1Ko2nZGp37kA1pmqlw/exec';
+
+    async function notificarAdmins(dados) {
+      try {
+        const { data: admins } = await sb.from('profiles')
+          .select('nome, email')
+          .eq('tipo', 'admin')
+          .eq('ativo', true);
+        if (!admins?.length) return;
+        admins.forEach(admin => {
+          fetch(EMAIL_SCRIPT_URL, {
+            method: 'POST', mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ ...dados, to_email: admin.email, to_name: admin.nome })
+          });
+        });
+      } catch (e) { console.warn('Notificação não enviada:', e); }
+    }
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
@@ -140,8 +161,15 @@
 
       meuId = session.user.id;
 
-      const { data: profile } = await sb.from('profiles').select('tipo').eq('id', meuId).single();
-      isAdmin = profile?.tipo === 'admin';
+      const { data: profile } = await sb.from('profiles')
+        .select('tipo, nome, cliente_id').eq('id', meuId).single();
+      isAdmin       = profile?.tipo === 'admin';
+      meuPerfil.nome = profile?.nome || session.user.email || '';
+      if (profile?.cliente_id) {
+        const { data: cli } = await sb.from('clientes')
+          .select('nome').eq('id', profile.cliente_id).single();
+        meuPerfil.cliente = cli?.nome || '';
+      }
 
       // Ajusta título da página conforme perfil
       if (isAdmin) {
@@ -181,6 +209,8 @@
         const { data: perfis } = await sb.from('profiles').select('id, nome, email').in('id', ids);
         perfilMap = Object.fromEntries((perfis || []).map(p => [p.id, p]));
       }
+
+      listaPedidos = pedidos; // salva para uso no cancelamento
 
       lista.innerHTML = pedidos.map(p => {
         const num   = '#' + String(p.numero).padStart(4, '0');
@@ -255,20 +285,33 @@
     async function cancelarPedido(id) {
       if (!confirm('Confirma o cancelamento deste pedido?')) return;
 
+      const pedido = listaPedidos.find(x => x.id === id);
+      const statusAnterior = pedido?.status;
+
       // Garante no frontend que só o dono pode cancelar (RLS garante no banco)
-      let query = sb.from('pedidos')
+      const { error } = await sb.from('pedidos')
         .update({ status: 'cancelado_usuario', updated_at: new Date().toISOString() })
         .eq('id', id)
         .eq('created_by', meuId);
 
-      const { error } = await query;
-
       if (error) { alert('Erro ao cancelar. Tente novamente.'); return; }
 
+      // Atualiza UI
       const card = document.getElementById(`ped-${id}`);
       card.querySelector('.badge').className = 'badge badge-cancelado_usuario';
       card.querySelector('.badge').textContent = STATUS_LABEL.cancelado_usuario;
       card.querySelector('.btn-cancelar')?.remove();
+
+      // Notifica admins (fire-and-forget)
+      notificarAdmins({
+        tipo: 'pedido_status',
+        numero: String(pedido?.numero || '').padStart(4, '0'),
+        cliente: meuPerfil.cliente || '—',
+        usuario: meuPerfil.nome,
+        status_anterior: STATUS_LABEL[statusAnterior] || statusAnterior || '—',
+        status_novo: STATUS_LABEL.cancelado_usuario,
+        total: 'R$ ' + parseFloat(pedido?.total || 0).toFixed(2).replace('.', ',')
+      });
     }
 
     init();
