@@ -131,11 +131,34 @@
     .badge-admin-empresa{display:inline-flex;align-items:center;gap:5px;font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:50px;background:rgba(255,106,0,.12);color:var(--ember);border:1px solid rgba(255,106,0,.3);white-space:nowrap;flex-shrink:0;}
     .usuario-badge.admin{background:rgba(255,106,0,.12);color:var(--ember);border:1px solid rgba(255,106,0,.3);}
 
+    /* ações do usuário (badge + botões): classe reutilizável */
+    .usuario-acoes{display:flex;align-items:center;gap:10px;}
+
     @media(max-width:700px){
+      main{padding:28px 4% 60px;}
       .form-grid{grid-template-columns:1fr;}
       .usuario-form-grid{grid-template-columns:1fr;}
       .btn-primary,.btn-add-user{width:100%;}
       .senha-form-grid{grid-template-columns:1fr;}
+      /* header do cliente: padding menor, itens do info podem quebrar */
+      .cliente-header{padding:14px 16px;gap:10px;}
+      .cliente-info{gap:8px;flex-wrap:wrap;}
+      .usuarios-inner{padding:16px;}
+      .novo-usuario-card{padding:16px;}
+      /* item de usuário: permite quebrar para segunda linha */
+      .usuario-item{flex-wrap:wrap;row-gap:8px;}
+      .usuario-acoes{flex-wrap:wrap;gap:6px;}
+    }
+
+    @media(max-width:480px){
+      /* badges e textos menores */
+      .badge-admin-empresa{font-size:.55rem;padding:2px 7px;}
+      .cliente-codigo{font-size:.9rem;}
+      .cliente-nome{font-size:.88rem;}
+      .user-count{font-size:.68rem;}
+      /* item de usuário: info e ações em colunas separadas */
+      .usuario-item{flex-direction:column;align-items:flex-start;}
+      .usuario-acoes{width:100%;justify-content:flex-start;}
     }
   </style>
 </head>
@@ -345,7 +368,7 @@
                   <div class="usuario-nome">${u.nome || '—'}</div>
                   <div class="usuario-email">${u.email || '—'}</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                <div class="usuario-acoes">
                   <span class="${badgeClass}">${badgeText}</span>
                   ${btnToggle}
                   <button class="btn-chave" onclick="toggleSenha('${u.id}')" title="Alterar senha">🔑</button>
@@ -480,7 +503,7 @@
             <div class="usuario-nome">${nome}</div>
             <div class="usuario-email">${email}</div>
           </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+          <div class="usuario-acoes">
             <span class="usuario-badge${tipoUsuario === 'admin' ? ' admin' : ''}">${tipoUsuario === 'admin' ? 'Administrador' : 'Cliente'}</span>
             ${novoUserId && novoUserId !== meuId ? `<button class="btn-toggle-user desativar" onclick="toggleUsuario('${novoUserId}', false)">Desativar</button>` : ''}
             ${novoUserId ? `<button class="btn-chave" onclick="toggleSenha('${novoUserId}')" title="Alterar senha">🔑</button>` : ''}

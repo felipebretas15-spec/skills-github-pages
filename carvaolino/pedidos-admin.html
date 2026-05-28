@@ -114,11 +114,29 @@
     .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    /* badge + data: permite quebrar linha em telas pequenas */
+    .badge-data-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+
     @media(max-width:700px){
       .pedido-header{grid-template-columns:auto 1fr auto;gap:12px;padding:14px 16px;}
       .pedido-total{display:none;}
       .itens-inner{padding:16px;}
       .itens-table .col-preco{display:none;}
+      /* filtro de cliente ocupa linha inteira */
+      .filtro-cliente-wrap{flex-direction:column;align-items:flex-start;gap:8px;}
+      .select-cliente{width:100%;min-width:unset;}
+      /* ações do rodapé empilham verticalmente */
+      .itens-footer{flex-direction:column;align-items:flex-start;}
+      .footer-acoes{width:100%;flex-direction:column;align-items:stretch;}
+      .select-status{width:100%;}
+      .btn-salvar-status{width:100%;}
+    }
+
+    @media(max-width:480px){
+      main{padding:28px 4% 60px;}
+      .pedido-header{gap:8px;padding:12px 14px;}
+      .pedido-numero{font-size:1.55rem;}
+      .filtro-btn{font-size:.65rem;padding:6px 11px;}
     }
   </style>
 </head>
@@ -316,7 +334,7 @@
               <div class="pedido-meta">
                 <div class="pedido-cliente">${nomeCliente}</div>
                 <div style="font-size:.72rem;color:var(--gray);margin-top:2px;">${nomeUsuario}${nomeUsuario && email ? ' · ' : ''}${email}</div>
-                <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                <div class="badge-data-row" style="margin-top:4px;">
                   ${badge}
                   <span class="pedido-data">${data}</span>
                 </div>
