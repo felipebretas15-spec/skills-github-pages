@@ -71,6 +71,12 @@
       transition: color 0.25s;
     }
     .nav-links a:hover { color: var(--red2); }
+    .nav-cliente {
+      border: 1.5px solid rgba(217,0,0,0.6); color: var(--white) !important;
+      padding: 7px 16px; border-radius: 4px;
+      transition: border-color 0.25s, background 0.25s !important;
+    }
+    .nav-cliente:hover { border-color: var(--red2) !important; background: rgba(217,0,0,0.12) !important; }
     .nav-cta {
       background: var(--red); color: var(--white) !important;
       padding: 8px 18px; border-radius: 4px;
@@ -508,6 +514,7 @@
       <li><a href="#por-que">Por que nós?</a></li>
       <li><a href="#avaliacoes">Avaliações</a></li>
       <li><a href="#instagram">Instagram</a></li>
+      <li><a href="login.html" class="nav-cliente">Área do Cliente</a></li>
       <li><a href="https://wa.me/5515997599041" target="_blank" class="nav-cta">Pedir Agora</a></li>
     </ul>
     <div class="hamburger" id="hamburger" onclick="toggleMenu()">
