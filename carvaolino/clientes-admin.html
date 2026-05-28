@@ -101,6 +101,12 @@
     .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    /* Empresa Administradora */
+    .admin-empresa{border-color:rgba(255,106,0,.35) !important;}
+    .admin-empresa:hover{border-color:rgba(255,106,0,.6) !important;}
+    .badge-admin-empresa{display:inline-flex;align-items:center;gap:5px;font-size:.6rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:50px;background:rgba(255,106,0,.12);color:var(--ember);border:1px solid rgba(255,106,0,.3);white-space:nowrap;flex-shrink:0;}
+    .usuario-badge.admin{background:rgba(255,106,0,.12);color:var(--ember);border:1px solid rgba(255,106,0,.3);}
+
     @media(max-width:700px){
       .form-grid{grid-template-columns:1fr;}
       .usuario-form-grid{grid-template-columns:1fr;}
@@ -277,16 +283,24 @@
       }
 
       // Busca contagem de usuários por cliente
-      const { data: perfis } = await sb.from('profiles').select('id, nome, email, cliente_id').not('cliente_id', 'is', null);
+      const { data: perfis } = await sb.from('profiles').select('id, nome, email, tipo, cliente_id').not('cliente_id', 'is', null);
       const perfisMap = {};
       (perfis || []).forEach(p => {
         if (!perfisMap[p.cliente_id]) perfisMap[p.cliente_id] = [];
         perfisMap[p.cliente_id].push(p);
       });
 
+      // Admin sempre primeiro, depois ordem alfabética
+      clientes.sort((a, b) => {
+        if (a.tipo === 'admin' && b.tipo !== 'admin') return -1;
+        if (b.tipo === 'admin' && a.tipo !== 'admin') return 1;
+        return a.nome.localeCompare(b.nome);
+      });
+
       lista.innerHTML = clientes.map(c => {
-        const usuarios = perfisMap[c.id] || [];
-        const codigoFmt = formatarCodigo(c.codigo, c.tipo_codigo);
+        const usuarios    = perfisMap[c.id] || [];
+        const codigoFmt   = formatarCodigo(c.codigo, c.tipo_codigo);
+        const isAdminEmp  = c.tipo === 'admin';
 
         const listaUsuarios = usuarios.length
           ? usuarios.map(u => `
@@ -295,14 +309,15 @@
                   <div class="usuario-nome">${u.nome || '—'}</div>
                   <div class="usuario-email">${u.email || '—'}</div>
                 </div>
-                <span class="usuario-badge">Cliente</span>
+                <span class="usuario-badge${u.tipo === 'admin' ? ' admin' : ''}">${u.tipo === 'admin' ? 'Administrador' : 'Cliente'}</span>
               </div>`).join('')
           : '<div class="empty-users">Nenhum usuário vinculado ainda.</div>';
 
         return `
-          <div class="cliente-card" id="cli-${c.id}">
+          <div class="cliente-card${isAdminEmp ? ' admin-empresa' : ''}" id="cli-${c.id}">
             <div class="cliente-header" onclick="toggleCliente('${c.id}')">
               <div class="cliente-info">
+                ${isAdminEmp ? '<span class="badge-admin-empresa">★ Administradora</span>' : ''}
                 <span class="cliente-codigo">${codigoFmt}</span>
                 <span class="cliente-nome">${c.nome}</span>
               </div>
@@ -319,7 +334,7 @@
                 <div class="usuarios-lista" id="ul-${c.id}">${listaUsuarios}</div>
 
                 <div class="novo-usuario-card">
-                  <p class="novo-usuario-titulo">Adicionar novo usuário</p>
+                  <p class="novo-usuario-titulo">Adicionar novo usuário${isAdminEmp ? ' administrador' : ''}</p>
                   <div class="usuario-form-grid">
                     <div class="field">
                       <label>Nome</label>
@@ -333,7 +348,7 @@
                       <label>Senha</label>
                       <input type="password" id="up-${c.id}" placeholder="Mínimo 6 caracteres" />
                     </div>
-                    <button class="btn-add-user" onclick="criarUsuario('${c.id}')" id="ubtn-${c.id}">
+                    <button class="btn-add-user" onclick="criarUsuario('${c.id}', '${c.tipo}')" id="ubtn-${c.id}">
                       + Criar
                     </button>
                   </div>
@@ -356,7 +371,7 @@
     }
 
     /* ── Criar usuário vinculado ── */
-    async function criarUsuario(clienteId) {
+    async function criarUsuario(clienteId, tipoEmpresa) {
       const nome  = document.getElementById(`un-${clienteId}`).value.trim();
       const email = document.getElementById(`ue-${clienteId}`).value.trim();
       const senha = document.getElementById(`up-${clienteId}`).value;
@@ -367,6 +382,8 @@
       if (!email) { showMsg(msg, 'erro', 'Informe o e-mail.'); return; }
       if (senha.length < 6) { showMsg(msg, 'erro', 'A senha deve ter no mínimo 6 caracteres.'); return; }
 
+      const tipoUsuario = tipoEmpresa === 'admin' ? 'admin' : 'cliente';
+
       btn.disabled = true; btn.textContent = 'Criando...';
       msg.style.display = 'none';
 
@@ -375,7 +392,8 @@
         p_email: email,
         p_password: senha,
         p_nome: nome,
-        p_cliente_id: clienteId
+        p_cliente_id: clienteId,
+        p_tipo: tipoUsuario
       });
 
       if (error) {
@@ -398,7 +416,7 @@
             <div class="usuario-nome">${nome}</div>
             <div class="usuario-email">${email}</div>
           </div>
-          <span class="usuario-badge">Cliente</span>
+          <span class="usuario-badge${tipoUsuario === 'admin' ? ' admin' : ''}">${tipoUsuario === 'admin' ? 'Administrador' : 'Cliente'}</span>
         </div>`;
       ul.querySelector('.empty-users')?.remove();
       ul.insertAdjacentHTML('beforeend', novoItem);
