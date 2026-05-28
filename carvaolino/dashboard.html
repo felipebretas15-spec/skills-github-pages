@@ -355,6 +355,14 @@
         <a href="pedidos-admin.html" class="card-btn">Gerenciar</a>
       </div>
 
+      <!-- Clientes (somente admin) -->
+      <div class="dash-card" id="card-clientes-admin" style="display:none;">
+        <div class="card-icon">👥</div>
+        <div class="card-title">Clientes</div>
+        <p class="card-desc">Cadastre clientes e vincule usuários de acesso a cada um.</p>
+        <a href="clientes-admin.html" class="card-btn">Gerenciar</a>
+      </div>
+
     </div>
 
   </div>
@@ -394,6 +402,7 @@
       if (tipo === 'admin') {
         document.getElementById('card-admin').style.display = 'flex';
         document.getElementById('card-pedidos-admin').style.display = 'flex';
+        document.getElementById('card-clientes-admin').style.display = 'flex';
       }
 
       document.getElementById('loading').style.opacity = '0';

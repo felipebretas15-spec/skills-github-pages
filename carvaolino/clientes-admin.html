@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes – Carvão Lino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--red:#d90000;--red2:#ff2200;--ember:#ff6a00;--black:#0a0a0a;--dark:#111111;--card:#161616;--card2:#1e1e1e;--gray:#888888;--white:#ffffff;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;}
+
+    /* Header */
+    header{background:rgba(10,10,10,.95);border-bottom:1px solid rgba(217,0,0,.25);backdrop-filter:blur(10px);padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .header-logo img{height:44px;filter:drop-shadow(0 0 8px rgba(217,0,0,.3));}
+    .btn-back{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--gray);font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:6px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
+    .btn-back:hover{border-color:var(--red2);color:var(--red2);}
+    .btn-back svg{width:15px;height:15px;}
+
+    main{flex:1;padding:44px 5% 80px;max-width:1000px;margin:0 auto;width:100%;}
+
+    .page-label{font-size:.72rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red2);margin-bottom:8px;}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);letter-spacing:2px;line-height:1;}
+    .page-title span{color:var(--red2);}
+    .divider{width:50px;height:3px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:2px;margin:14px 0 36px;}
+
+    /* Form card */
+    .form-card{background:var(--card);border:1px solid rgba(217,0,0,.2);border-radius:16px;padding:32px;margin-bottom:40px;}
+    .form-card-title{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:24px;}
+    .form-grid{display:grid;grid-template-columns:220px 1fr auto;gap:16px;align-items:end;}
+
+    .field{display:flex;flex-direction:column;gap:6px;}
+    label{font-size:.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#aaa;}
+    input[type="text"],input[type="email"],input[type="password"]{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:var(--white);font-family:'Montserrat',sans-serif;font-size:.92rem;padding:12px 14px;outline:none;transition:border-color .25s,background .25s,box-shadow .25s;width:100%;}
+    input::placeholder{color:#444;}
+    input:focus{border-color:var(--red2);background:rgba(217,0,0,.06);box-shadow:0 0 0 3px rgba(217,0,0,.15);}
+    input.invalido{border-color:#ef5350 !important;box-shadow:0 0 0 3px rgba(239,83,80,.15) !important;}
+    input.valido{border-color:#66bb6a !important;box-shadow:0 0 0 3px rgba(102,187,106,.12) !important;}
+    .hint{font-size:.68rem;margin-top:4px;min-height:14px;}
+    .hint.erro{color:#ef5350;}
+    .hint.ok  {color:#66bb6a;}
+
+    .btn-primary{background:linear-gradient(135deg,var(--red),var(--red2));color:var(--white);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:8px;padding:13px 24px;cursor:pointer;box-shadow:0 4px 16px rgba(217,0,0,.3);transition:transform .2s,box-shadow .2s;white-space:nowrap;}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,34,0,.4);}
+    .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+
+    .msg{margin-top:14px;padding:9px 14px;border-radius:6px;font-size:.8rem;display:none;}
+    .msg.ok  {background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#81c784;}
+    .msg.erro{background:rgba(217,0,0,.1);border:1px solid rgba(217,0,0,.3);color:var(--ember);}
+
+    /* Lista de clientes */
+    .section-label{font-size:.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:18px;}
+    .clientes-lista{display:flex;flex-direction:column;gap:14px;}
+
+    .cliente-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;transition:border-color .25s;}
+    .cliente-card:hover{border-color:rgba(217,0,0,.2);}
+
+    .cliente-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;gap:16px;}
+    .cliente-info{display:flex;align-items:center;gap:20px;flex:1;min-width:0;}
+    .cliente-codigo{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:1.5px;color:var(--ember);white-space:nowrap;}
+    .cliente-nome{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-count{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--gray);white-space:nowrap;}
+    .user-count svg{width:14px;height:14px;}
+    .chevron{color:var(--gray);transition:transform .3s;flex-shrink:0;}
+    .cliente-card.aberto .chevron{transform:rotate(180deg);}
+
+    /* Seção de usuários (colapsável) */
+    .usuarios-section{display:none;border-top:1px solid rgba(255,255,255,.05);}
+    .cliente-card.aberto .usuarios-section{display:block;}
+    .usuarios-inner{padding:24px;}
+
+    .usuarios-titulo{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:14px;}
+
+    /* Lista de usuários do cliente */
+    .usuarios-lista{display:flex;flex-direction:column;gap:8px;margin-bottom:24px;}
+    .usuario-item{background:var(--card2);border:1px solid rgba(255,255,255,.05);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .usuario-nome{font-weight:700;font-size:.85rem;}
+    .usuario-email{font-size:.75rem;color:var(--gray);margin-top:2px;}
+    .usuario-badge{font-size:.62rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:50px;background:rgba(33,150,243,.12);color:#64b5f6;border:1px solid rgba(33,150,243,.25);white-space:nowrap;}
+    .empty-users{font-size:.82rem;color:var(--gray);padding:10px 0 16px;text-align:center;}
+
+    /* Form de novo usuário */
+    .novo-usuario-card{background:rgba(255,255,255,.03);border:1px dashed rgba(217,0,0,.2);border-radius:10px;padding:20px;}
+    .novo-usuario-titulo{font-size:.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:16px;}
+    .usuario-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;}
+
+    .btn-add-user{background:transparent;border:1px solid rgba(217,0,0,.4);color:var(--red2);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.75rem;letter-spacing:1px;text-transform:uppercase;padding:12px 18px;border-radius:6px;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s;}
+    .btn-add-user:hover{background:rgba(217,0,0,.12);border-color:var(--red2);}
+    .btn-add-user:disabled{opacity:.4;cursor:not-allowed;}
+
+    .msg-user{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:.75rem;display:none;}
+    .msg-user.ok  {background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#81c784;}
+    .msg-user.erro{background:rgba(217,0,0,.1);border:1px solid rgba(217,0,0,.3);color:var(--ember);}
+
+    .empty-state{text-align:center;padding:60px 20px;color:var(--gray);}
+    .empty-state .icon{font-size:3rem;margin-bottom:12px;}
+
+    #loading{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .4s;}
+    .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:700px){
+      .form-grid{grid-template-columns:1fr;}
+      .usuario-form-grid{grid-template-columns:1fr;}
+      .btn-primary,.btn-add-user{width:100%;}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <header>
+    <a href="index.html" class="header-logo"><img src="logo.png" alt="Carvão Lino" /></a>
+    <a href="dashboard.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
+  </header>
+
+  <main>
+    <p class="page-label">Admin</p>
+    <h1 class="page-title">Cadastro de <span>Clientes</span></h1>
+    <div class="divider"></div>
+
+    <!-- Form novo cliente -->
+    <div class="form-card">
+      <p class="form-card-title">Cadastrar novo cliente</p>
+      <form id="form-cliente" autocomplete="off">
+        <div class="form-grid">
+          <div class="field">
+            <label for="codigo">CPF / CNPJ</label>
+            <input type="text" id="codigo" placeholder="000.000.000-00" maxlength="18" required />
+            <span class="hint" id="hint-codigo"></span>
+          </div>
+          <div class="field">
+            <label for="nome-cliente">Nome do Cliente</label>
+            <input type="text" id="nome-cliente" placeholder="Razão social ou nome completo" required />
+          </div>
+          <button type="submit" class="btn-primary" id="btn-salvar-cliente">Cadastrar</button>
+        </div>
+        <div class="msg" id="msg-cliente"></div>
+      </form>
+    </div>
+
+    <!-- Lista de clientes -->
+    <p class="section-label">Clientes cadastrados</p>
+    <div class="clientes-lista" id="clientes-lista">
+      <div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando...</div></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://vjqautajuqvchhyxhbij.supabase.co',
+      'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
+    );
+
+    /* ── Máscara CPF/CNPJ ── */
+    function mascaraCodigo(v) {
+      const n = v.replace(/\D/g, '').slice(0, 14);
+      if (n.length <= 11)
+        return n.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+      return n.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    }
+
+    /* ── Validação CPF ── */
+    function validarCPF(cpf) {
+      cpf = cpf.replace(/\D/g, '');
+      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+      let s = 0;
+      for (let i = 0; i < 9; i++) s += +cpf[i] * (10 - i);
+      let r = (s * 10) % 11; if (r >= 10) r = 0;
+      if (r !== +cpf[9]) return false;
+      s = 0;
+      for (let i = 0; i < 10; i++) s += +cpf[i] * (11 - i);
+      r = (s * 10) % 11; if (r >= 10) r = 0;
+      return r === +cpf[10];
+    }
+
+    /* ── Validação CNPJ ── */
+    function validarCNPJ(cnpj) {
+      cnpj = cnpj.replace(/\D/g, '');
+      if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+      const calc = (c, n) => {
+        const p = n === 12 ? [5,4,3,2,9,8,7,6,5,4,3,2] : [6,5,4,3,2,9,8,7,6,5,4,3,2];
+        const s = [...Array(n)].reduce((a, _, i) => a + +c[i] * p[i], 0);
+        const r = s % 11; return r < 2 ? 0 : 11 - r;
+      };
+      return calc(cnpj, 12) === +cnpj[12] && calc(cnpj, 13) === +cnpj[13];
+    }
+
+    function validarCodigo(v) {
+      const n = v.replace(/\D/g, '');
+      if (n.length === 11) return validarCPF(n) ? { ok: true, tipo: 'cpf', label: 'CPF válido' } : { ok: false, label: 'CPF inválido' };
+      if (n.length === 14) return validarCNPJ(n) ? { ok: true, tipo: 'cnpj', label: 'CNPJ válido' } : { ok: false, label: 'CNPJ inválido' };
+      if (n.length > 0) return { ok: false, label: n.length < 11 ? `CPF: faltam ${11 - n.length} dígitos` : `CNPJ: faltam ${14 - n.length} dígitos` };
+      return { ok: false, label: '' };
+    }
+
+    /* ── Eventos de máscara ── */
+    const inputCodigo = document.getElementById('codigo');
+    const hintCodigo  = document.getElementById('hint-codigo');
+
+    inputCodigo.addEventListener('input', () => {
+      inputCodigo.value = mascaraCodigo(inputCodigo.value);
+      const v = validarCodigo(inputCodigo.value);
+      hintCodigo.textContent  = v.label;
+      hintCodigo.className    = 'hint ' + (v.ok ? 'ok' : v.label ? 'erro' : '');
+      inputCodigo.className   = v.ok ? 'valido' : v.label ? 'invalido' : '';
+    });
+
+    /* ── Auth ── */
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      const { data: p } = await sb.from('profiles').select('tipo').eq('id', session.user.id).single();
+      if (!p || p.tipo !== 'admin') { window.location.href = 'dashboard.html'; return; }
+      await carregarClientes();
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+    }
+
+    /* ── Salvar cliente ── */
+    document.getElementById('form-cliente').addEventListener('submit', async e => {
+      e.preventDefault();
+      const codigo = document.getElementById('codigo').value;
+      const nome   = document.getElementById('nome-cliente').value.trim();
+      const v      = validarCodigo(codigo);
+      const msg    = document.getElementById('msg-cliente');
+      const btn    = document.getElementById('btn-salvar-cliente');
+
+      if (!v.ok) { showMsg(msg, 'erro', 'CPF ou CNPJ inválido.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Salvando...';
+      msg.style.display = 'none';
+
+      const { error } = await sb.from('clientes').insert({
+        codigo: codigo.replace(/\D/g, ''),
+        tipo_codigo: v.tipo,
+        nome
+      });
+
+      btn.disabled = false; btn.textContent = 'Cadastrar';
+
+      if (error) {
+        showMsg(msg, 'erro', error.code === '23505' ? 'Este CPF/CNPJ já está cadastrado.' : 'Erro ao cadastrar. Tente novamente.');
+        return;
+      }
+
+      showMsg(msg, 'ok', `Cliente "${nome}" cadastrado com sucesso!`);
+      e.target.reset();
+      inputCodigo.className = '';
+      hintCodigo.textContent = '';
+      carregarClientes();
+    });
+
+    /* ── Carregar clientes ── */
+    async function carregarClientes() {
+      const { data: clientes } = await sb.from('clientes').select('*').order('nome');
+      const lista = document.getElementById('clientes-lista');
+
+      if (!clientes || !clientes.length) {
+        lista.innerHTML = '<div class="empty-state"><div class="icon">👥</div><div>Nenhum cliente cadastrado ainda.</div></div>';
+        return;
+      }
+
+      // Busca contagem de usuários por cliente
+      const { data: perfis } = await sb.from('profiles').select('id, nome, email, cliente_id').not('cliente_id', 'is', null);
+      const perfisMap = {};
+      (perfis || []).forEach(p => {
+        if (!perfisMap[p.cliente_id]) perfisMap[p.cliente_id] = [];
+        perfisMap[p.cliente_id].push(p);
+      });
+
+      lista.innerHTML = clientes.map(c => {
+        const usuarios = perfisMap[c.id] || [];
+        const codigoFmt = formatarCodigo(c.codigo, c.tipo_codigo);
+
+        const listaUsuarios = usuarios.length
+          ? usuarios.map(u => `
+              <div class="usuario-item">
+                <div>
+                  <div class="usuario-nome">${u.nome || '—'}</div>
+                  <div class="usuario-email">${u.email || '—'}</div>
+                </div>
+                <span class="usuario-badge">Cliente</span>
+              </div>`).join('')
+          : '<div class="empty-users">Nenhum usuário vinculado ainda.</div>';
+
+        return `
+          <div class="cliente-card" id="cli-${c.id}">
+            <div class="cliente-header" onclick="toggleCliente('${c.id}')">
+              <div class="cliente-info">
+                <span class="cliente-codigo">${codigoFmt}</span>
+                <span class="cliente-nome">${c.nome}</span>
+              </div>
+              <div class="user-count">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                ${usuarios.length} usuário${usuarios.length !== 1 ? 's' : ''}
+              </div>
+              <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+
+            <div class="usuarios-section" id="sec-${c.id}">
+              <div class="usuarios-inner">
+                <p class="usuarios-titulo">Usuários vinculados</p>
+                <div class="usuarios-lista" id="ul-${c.id}">${listaUsuarios}</div>
+
+                <div class="novo-usuario-card">
+                  <p class="novo-usuario-titulo">Adicionar novo usuário</p>
+                  <div class="usuario-form-grid">
+                    <div class="field">
+                      <label>Nome</label>
+                      <input type="text" id="un-${c.id}" placeholder="Nome completo" />
+                    </div>
+                    <div class="field">
+                      <label>E-mail</label>
+                      <input type="email" id="ue-${c.id}" placeholder="email@exemplo.com" />
+                    </div>
+                    <div class="field">
+                      <label>Senha</label>
+                      <input type="password" id="up-${c.id}" placeholder="Mínimo 6 caracteres" />
+                    </div>
+                    <button class="btn-add-user" onclick="criarUsuario('${c.id}')" id="ubtn-${c.id}">
+                      + Criar
+                    </button>
+                  </div>
+                  <div class="msg-user" id="umsg-${c.id}"></div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function formatarCodigo(codigo, tipo) {
+      if (tipo === 'cpf')
+        return codigo.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+      return codigo.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+    }
+
+    function toggleCliente(id) {
+      document.getElementById(`cli-${id}`)?.classList.toggle('aberto');
+    }
+
+    /* ── Criar usuário vinculado ── */
+    async function criarUsuario(clienteId) {
+      const nome  = document.getElementById(`un-${clienteId}`).value.trim();
+      const email = document.getElementById(`ue-${clienteId}`).value.trim();
+      const senha = document.getElementById(`up-${clienteId}`).value;
+      const btn   = document.getElementById(`ubtn-${clienteId}`);
+      const msg   = document.getElementById(`umsg-${clienteId}`);
+
+      if (!nome)  { showMsg(msg, 'erro', 'Informe o nome do usuário.'); return; }
+      if (!email) { showMsg(msg, 'erro', 'Informe o e-mail.'); return; }
+      if (senha.length < 6) { showMsg(msg, 'erro', 'A senha deve ter no mínimo 6 caracteres.'); return; }
+
+      btn.disabled = true; btn.textContent = 'Criando...';
+      msg.style.display = 'none';
+
+      // Cria o usuário no Supabase Auth
+      const { data, error } = await sb.auth.signUp({ email, password: senha });
+
+      if (error) {
+        btn.disabled = false; btn.textContent = '+ Criar';
+        const erros = {
+          'User already registered': 'Este e-mail já está cadastrado.',
+          'Password should be at least 6 characters': 'Senha deve ter ao menos 6 caracteres.'
+        };
+        showMsg(msg, 'erro', erros[error.message] || 'Erro ao criar usuário.');
+        return;
+      }
+
+      const userId = data.user?.id;
+      if (!userId) {
+        btn.disabled = false; btn.textContent = '+ Criar';
+        showMsg(msg, 'erro', 'Usuário criado, mas não foi possível vincular. Verifique no painel do Supabase.');
+        return;
+      }
+
+      // Vincula ao cliente e define tipo = 'cliente'
+      await sb.from('profiles').upsert({
+        id: userId, nome, email, tipo: 'cliente', cliente_id: clienteId
+      }, { onConflict: 'id' });
+
+      // Atualiza a lista de usuários do card sem recarregar tudo
+      const ul = document.getElementById(`ul-${clienteId}`);
+      const novoItem = `
+        <div class="usuario-item">
+          <div>
+            <div class="usuario-nome">${nome}</div>
+            <div class="usuario-email">${email}</div>
+          </div>
+          <span class="usuario-badge">Cliente</span>
+        </div>`;
+      ul.querySelector('.empty-users')?.remove();
+      ul.insertAdjacentHTML('beforeend', novoItem);
+
+      // Limpa o form
+      document.getElementById(`un-${clienteId}`).value = '';
+      document.getElementById(`ue-${clienteId}`).value = '';
+      document.getElementById(`up-${clienteId}`).value = '';
+      btn.disabled = false; btn.textContent = '+ Criar';
+
+      // Atualiza contagem no header
+      const card = document.getElementById(`cli-${clienteId}`);
+      const countEl = card.querySelector('.user-count');
+      const atual = ul.querySelectorAll('.usuario-item').length;
+      countEl.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        ${atual} usuário${atual !== 1 ? 's' : ''}`;
+
+      showMsg(msg, 'ok', `Usuário "${nome}" criado e vinculado com sucesso!`);
+    }
+
+    function showMsg(el, tipo, txt) {
+      el.textContent = txt;
+      el.className = 'msg-user ' + tipo;
+      el.style.display = 'block';
+      if (tipo === 'ok') setTimeout(() => el.style.display = 'none', 3000);
+    }
+
+    init();
+  </script>
+</body>
+</html>
