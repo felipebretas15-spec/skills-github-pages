@@ -175,10 +175,10 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 24px;
       width: 100%;
-      max-width: 720px;
+      max-width: 960px;
     }
 
     .dash-card {
@@ -339,6 +339,14 @@
         <a href="pedidos.html" class="card-btn">Ver Pedidos</a>
       </div>
 
+      <!-- Gerenciamento de Produtos (somente admin) -->
+      <div class="dash-card" id="card-admin" style="display:none;">
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">Produtos</div>
+        <p class="card-desc">Cadastre e gerencie os produtos disponíveis para pedidos.</p>
+        <a href="produtos-admin.html" class="card-btn">Gerenciar</a>
+      </div>
+
     </div>
 
   </div>
@@ -374,6 +382,10 @@
       document.getElementById('user-name').textContent  = nome;
       document.getElementById('user-role').textContent  = tipo === 'admin' ? 'Administrador' : 'Cliente';
       document.getElementById('first-name').textContent = primeiro;
+
+      if (tipo === 'admin') {
+        document.getElementById('card-admin').style.display = 'flex';
+      }
 
       document.getElementById('loading').style.opacity = '0';
       setTimeout(() => document.getElementById('loading').style.display = 'none', 400);

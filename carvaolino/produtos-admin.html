@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciamento de Produtos – Carvão Lino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:   #d90000;
+      --red2:  #ff2200;
+      --ember: #ff6a00;
+      --black: #0a0a0a;
+      --dark:  #111111;
+      --card:  #161616;
+      --gray:  #888888;
+      --white: #ffffff;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: rgba(10,10,10,0.95);
+      border-bottom: 1px solid rgba(217,0,0,0.25);
+      backdrop-filter: blur(10px);
+      padding: 0 5%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo img { height: 44px; width: auto; filter: drop-shadow(0 0 8px rgba(217,0,0,0.3)); }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .btn-back {
+      display: flex; align-items: center; gap: 7px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 7px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-back:hover { border-color: var(--red2); color: var(--red2); }
+    .btn-back svg { width: 15px; height: 15px; }
+
+    /* ── Layout ── */
+    main {
+      flex: 1;
+      padding: 48px 5% 80px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .page-header { margin-bottom: 40px; }
+    .page-label {
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 4px; text-transform: uppercase;
+      color: var(--red2); margin-bottom: 8px;
+    }
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      letter-spacing: 2px; line-height: 1;
+    }
+    .page-title span { color: var(--red2); }
+    .divider {
+      width: 50px; height: 3px;
+      background: linear-gradient(90deg, var(--red), var(--red2));
+      border-radius: 2px; margin-top: 14px;
+    }
+
+    /* ── Formulário de cadastro ── */
+    .form-card {
+      background: var(--card);
+      border: 1px solid rgba(217,0,0,0.2);
+      border-radius: 16px;
+      padding: 36px;
+      margin-bottom: 48px;
+    }
+
+    .form-card-title {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 28px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 20px;
+      align-items: end;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 8px; }
+
+    label {
+      font-size: 0.75rem; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #aaa;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+      width: 100%;
+    }
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder { color: #444; }
+    input:focus {
+      border-color: var(--red2);
+      background: rgba(217,0,0,0.06);
+      box-shadow: 0 0 0 3px rgba(217,0,0,0.15);
+    }
+
+    /* Upload de foto */
+    .upload-area {
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s;
+      position: relative;
+      min-height: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .upload-area:hover { border-color: var(--red2); background: rgba(217,0,0,0.04); }
+    .upload-area.has-preview { border-color: rgba(217,0,0,0.4); padding: 8px; }
+    .upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .upload-icon { font-size: 1.8rem; }
+    .upload-text { font-size: 0.78rem; color: var(--gray); }
+    .upload-preview {
+      width: 100%; max-height: 140px;
+      object-fit: contain; border-radius: 6px;
+      display: none;
+    }
+    .upload-preview.visible { display: block; }
+    .upload-name { font-size: 0.72rem; color: var(--ember); margin-top: 4px; display: none; }
+
+    /* Preço */
+    .preco-wrap { position: relative; }
+    .preco-wrap span {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.85rem; font-weight: 700; color: var(--gray);
+    }
+    .preco-wrap input { padding-left: 36px !important; }
+
+    .btn-salvar {
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      border: none; border-radius: 8px;
+      padding: 13px 28px; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(217,0,0,0.35);
+      transition: transform 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+    }
+    .btn-salvar:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,34,0,0.45); }
+    .btn-salvar:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Mensagens */
+    .msg {
+      margin-top: 16px; padding: 10px 16px;
+      border-radius: 6px; font-size: 0.82rem;
+      text-align: center; display: none;
+    }
+    .msg.erro { background: rgba(217,0,0,0.12); border: 1px solid rgba(217,0,0,0.4); color: var(--ember); }
+    .msg.ok   { background: rgba(0,180,0,0.1);  border: 1px solid rgba(0,180,0,0.3);  color: #4caf50; }
+
+    /* ── Lista de produtos ── */
+    .section-title {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--gray); margin-bottom: 20px;
+    }
+
+    .produtos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .produto-card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; overflow: hidden;
+      transition: transform 0.25s, border-color 0.25s;
+    }
+    .produto-card:hover { transform: translateY(-4px); border-color: rgba(217,0,0,0.3); }
+
+    .produto-foto {
+      width: 100%; height: 160px;
+      object-fit: cover; display: block;
+      background: #1e1e1e;
+    }
+    .produto-foto-placeholder {
+      width: 100%; height: 160px;
+      background: #1e1e1e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: #333;
+    }
+
+    .produto-info { padding: 16px; }
+    .produto-nome { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+    .produto-preco {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem; color: var(--red2);
+      letter-spacing: 1px;
+    }
+
+    .produto-acoes {
+      padding: 0 16px 16px;
+      display: flex; gap: 8px;
+    }
+
+    .btn-excluir {
+      flex: 1;
+      background: transparent;
+      border: 1px solid rgba(217,0,0,0.3);
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 8px; border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .btn-excluir:hover { background: rgba(217,0,0,0.15); color: var(--red2); border-color: var(--red2); }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center; padding: 60px 20px;
+      color: var(--gray); font-size: 0.88rem;
+    }
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Loading ── */
+    #loading {
+      position: fixed; inset: 0;
+      background: var(--black);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; transition: opacity 0.4s;
+    }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(217,0,0,0.2);
+      border-top-color: var(--red2);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 700px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .btn-salvar { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <header>
+    <a href="index.html" class="header-logo">
+      <img src="logo.png" alt="Carvão Lino" />
+    </a>
+    <div class="header-right">
+      <a href="dashboard.html" class="btn-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"/>
+        </svg>
+        Dashboard
+      </a>
+    </div>
+  </header>
+
+  <main>
+
+    <div class="page-header">
+      <p class="page-label">Admin</p>
+      <h1 class="page-title">Gerenciamento de <span>Produtos</span></h1>
+      <div class="divider"></div>
+    </div>
+
+    <!-- Formulário de cadastro -->
+    <div class="form-card">
+      <p class="form-card-title">Cadastrar novo produto</p>
+      <form id="form-produto">
+        <div class="form-grid">
+
+          <div class="field">
+            <label for="nome">Nome do Produto</label>
+            <input type="text" id="nome" placeholder="Ex: Carvão Vegetal 10kg" required />
+          </div>
+
+          <div class="field">
+            <label for="preco">Preço</label>
+            <div class="preco-wrap">
+              <span>R$</span>
+              <input type="number" id="preco" placeholder="0,00" min="0" step="0.01" required />
+            </div>
+          </div>
+
+          <div class="field" style="min-width:160px;">
+            <label>Foto do Produto</label>
+            <div class="upload-area" id="upload-area">
+              <input type="file" id="foto" accept="image/*" />
+              <div id="upload-placeholder">
+                <div class="upload-icon">🖼️</div>
+                <div class="upload-text">Clique para selecionar</div>
+              </div>
+              <img class="upload-preview" id="upload-preview" alt="Preview" />
+              <div class="upload-name" id="upload-name"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="margin-top: 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+          <button type="submit" class="btn-salvar" id="btn-salvar">Salvar Produto</button>
+          <div class="msg erro" id="msg-erro"></div>
+          <div class="msg ok"   id="msg-ok"></div>
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Lista de produtos -->
+    <p class="section-title">Produtos cadastrados</p>
+    <div class="produtos-grid" id="produtos-grid">
+      <div class="empty-state">
+        <div class="spinner" style="margin:0 auto 16px;"></div>
+        <div>Carregando produtos...</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://vjqautajuqvchhyxhbij.supabase.co',
+      'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
+    );
+
+    const BUCKET = 'produtos-fotos';
+
+    // ── Auth: verifica sessão e se é admin ──
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      const { data: profile } = await sb.from('profiles')
+        .select('tipo').eq('id', session.user.id).single();
+
+      if (!profile || profile.tipo !== 'admin') {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+
+      carregarProdutos();
+    }
+
+    // ── Preview de foto ──
+    document.getElementById('foto').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = document.getElementById('upload-preview');
+        const placeholder = document.getElementById('upload-placeholder');
+        const uploadName = document.getElementById('upload-name');
+        const uploadArea = document.getElementById('upload-area');
+        preview.src = ev.target.result;
+        preview.classList.add('visible');
+        placeholder.style.display = 'none';
+        uploadName.textContent = file.name;
+        uploadName.style.display = 'block';
+        uploadArea.classList.add('has-preview');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // ── Salvar produto ──
+    document.getElementById('form-produto').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btn-salvar');
+      const msgErro = document.getElementById('msg-erro');
+      const msgOk   = document.getElementById('msg-ok');
+
+      msgErro.style.display = 'none';
+      msgOk.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+
+      const nome  = document.getElementById('nome').value.trim();
+      const preco = parseFloat(document.getElementById('preco').value);
+      const file  = document.getElementById('foto').files[0];
+
+      let foto_url = null;
+
+      // Upload da foto se selecionada
+      if (file) {
+        const ext  = file.name.split('.').pop();
+        const path = `${Date.now()}.${ext}`;
+        const { data: up, error: upErr } = await sb.storage
+          .from(BUCKET).upload(path, file, { upsert: false });
+
+        if (upErr) {
+          showErro('Erro ao fazer upload da foto.');
+          btn.disabled = false; btn.textContent = 'Salvar Produto';
+          return;
+        }
+
+        const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(up.path);
+        foto_url = publicUrl;
+      }
+
+      const { error } = await sb.from('produtos').insert({ nome, preco, foto_url });
+
+      if (error) {
+        showErro('Erro ao salvar o produto. Tente novamente.');
+        btn.disabled = false; btn.textContent = 'Salvar Produto';
+        return;
+      }
+
+      showOk(`Produto "${nome}" cadastrado com sucesso!`);
+      e.target.reset();
+      resetUpload();
+      btn.disabled = false;
+      btn.textContent = 'Salvar Produto';
+      carregarProdutos();
+    });
+
+    function resetUpload() {
+      const preview = document.getElementById('upload-preview');
+      const placeholder = document.getElementById('upload-placeholder');
+      const uploadName = document.getElementById('upload-name');
+      const uploadArea = document.getElementById('upload-area');
+      preview.src = '';
+      preview.classList.remove('visible');
+      placeholder.style.display = '';
+      uploadName.style.display = 'none';
+      uploadArea.classList.remove('has-preview');
+    }
+
+    // ── Carregar produtos ──
+    async function carregarProdutos() {
+      const grid = document.getElementById('produtos-grid');
+      grid.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando...</div></div>';
+
+      const { data: produtos, error } = await sb.from('produtos')
+        .select('*').order('created_at', { ascending: false });
+
+      if (error || !produtos || produtos.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto cadastrado ainda.</div></div>';
+        return;
+      }
+
+      grid.innerHTML = produtos.map(p => `
+        <div class="produto-card" id="card-${p.id}">
+          ${p.foto_url
+            ? `<img class="produto-foto" src="${p.foto_url}" alt="${p.nome}" />`
+            : `<div class="produto-foto-placeholder">🪵</div>`
+          }
+          <div class="produto-info">
+            <div class="produto-nome">${p.nome}</div>
+            <div class="produto-preco">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</div>
+          </div>
+          <div class="produto-acoes">
+            <button class="btn-excluir" onclick="excluirProduto('${p.id}', '${p.foto_url || ''}', '${p.nome}')">
+              🗑 Excluir
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ── Excluir produto ──
+    async function excluirProduto(id, fotoUrl, nome) {
+      if (!confirm(`Excluir o produto "${nome}"?`)) return;
+
+      // Remove foto do storage se existir
+      if (fotoUrl) {
+        const path = fotoUrl.split(`${BUCKET}/`)[1];
+        if (path) await sb.storage.from(BUCKET).remove([path]);
+      }
+
+      const { error } = await sb.from('produtos').delete().eq('id', id);
+      if (error) { alert('Erro ao excluir produto.'); return; }
+
+      document.getElementById(`card-${id}`)?.remove();
+
+      const grid = document.getElementById('produtos-grid');
+      if (!grid.children.length) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto cadastrado ainda.</div></div>';
+      }
+    }
+
+    function showErro(txt) {
+      const el = document.getElementById('msg-erro');
+      el.textContent = txt; el.style.display = 'block';
+      document.getElementById('msg-ok').style.display = 'none';
+    }
+
+    function showOk(txt) {
+      const el = document.getElementById('msg-ok');
+      el.textContent = txt; el.style.display = 'block';
+      document.getElementById('msg-erro').style.display = 'none';
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
