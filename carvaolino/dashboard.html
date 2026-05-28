@@ -324,7 +324,7 @@
     <div class="cards-grid">
 
       <!-- Criar Pedido -->
-      <div class="dash-card">
+      <div class="dash-card" id="card-criar-pedido">
         <div class="card-icon">🛒</div>
         <div class="card-title">Criar Pedido</div>
         <p class="card-desc">Registre um novo pedido de carvão ou lenha para um cliente.</p>
@@ -332,7 +332,7 @@
       </div>
 
       <!-- Verificar Pedidos -->
-      <div class="dash-card">
+      <div class="dash-card" id="card-meus-pedidos">
         <div class="card-icon">📋</div>
         <div class="card-title">Meus Pedidos</div>
         <p class="card-desc">Consulte o histórico e o status de todos os pedidos realizados.</p>
@@ -402,6 +402,8 @@
       document.getElementById('first-name').textContent = primeiro;
 
       if (tipo === 'admin') {
+        document.getElementById('card-criar-pedido').style.display = 'none';
+        document.getElementById('card-meus-pedidos').style.display = 'none';
         document.getElementById('card-admin').style.display = 'flex';
         document.getElementById('card-pedidos-admin').style.display = 'flex';
         document.getElementById('card-clientes-admin').style.display = 'flex';
