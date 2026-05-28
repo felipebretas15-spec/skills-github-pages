@@ -204,12 +204,23 @@
 
       if (error || !pedidos) { mostrarVazio(); return; }
 
-      // Busca perfis dos clientes
-      const ids = [...new Set(pedidos.map(p => p.created_by))];
-      const { data: perfis } = await sb.from('profiles').select('id, nome, email').in('id', ids);
+      // Busca perfis dos usuários (com cliente_id)
+      const userIds = [...new Set(pedidos.map(p => p.created_by).filter(Boolean))];
+      const { data: perfis } = await sb.from('profiles').select('id, nome, email, cliente_id').in('id', userIds);
       const perfilMap = Object.fromEntries((perfis || []).map(p => [p.id, p]));
 
-      todosPedidos = pedidos.map(p => ({ ...p, _perfil: perfilMap[p.created_by] || null }));
+      // Busca nomes das empresas clientes
+      const clienteIds = [...new Set((perfis || []).map(p => p.cliente_id).filter(Boolean))];
+      const { data: clientes } = clienteIds.length
+        ? await sb.from('clientes').select('id, nome').in('id', clienteIds)
+        : { data: [] };
+      const clienteMap = Object.fromEntries((clientes || []).map(c => [c.id, c]));
+
+      todosPedidos = pedidos.map(p => {
+        const perfil  = perfilMap[p.created_by] || null;
+        const cliente = perfil?.cliente_id ? (clienteMap[perfil.cliente_id] || null) : null;
+        return { ...p, _perfil: perfil, _cliente: cliente };
+      });
 
       populateClienteFilter();
       atualizarContadores();
@@ -219,7 +230,7 @@
     function pedidosDoCliente() {
       return filtroCliente === 'todos'
         ? todosPedidos
-        : todosPedidos.filter(p => p.created_by === filtroCliente);
+        : todosPedidos.filter(p => p._perfil?.cliente_id === filtroCliente);
     }
 
     function atualizarContadores() {
@@ -235,8 +246,10 @@
       const sel = document.getElementById('select-cliente');
       const clientesMap = {};
       todosPedidos.forEach(p => {
-        if (p.created_by && p._perfil) {
-          clientesMap[p.created_by] = p._perfil.nome || p._perfil.email || '—';
+        const clienteId   = p._perfil?.cliente_id;
+        const clienteNome = p._cliente?.nome;
+        if (clienteId && clienteNome) {
+          clientesMap[clienteId] = clienteNome;
         }
       });
       const sorted = Object.entries(clientesMap).sort((a, b) => a[1].localeCompare(b[1]));
