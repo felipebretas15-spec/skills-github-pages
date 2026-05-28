@@ -98,6 +98,14 @@
     .msg-status.ok  {color:#81c784;}
     .msg-status.erro{color:#ef9a9a;}
 
+    /* ── Filtro cliente ── */
+    .filtro-cliente-wrap{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+    .filtro-cliente-label{font-size:.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);white-space:nowrap;}
+    .select-cliente{background:#1a1a1a;border:1px solid rgba(255,255,255,.12);color:var(--white);font-family:'Montserrat',sans-serif;font-size:.8rem;font-weight:600;padding:8px 36px 8px 16px;border-radius:50px;cursor:pointer;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;min-width:220px;}
+    .select-cliente:focus{border-color:var(--red2);background:rgba(217,0,0,.06);box-shadow:0 0 0 3px rgba(217,0,0,.12);}
+    .select-cliente option{background:#1e1e1e;}
+    .select-cliente.tem-filtro{border-color:var(--red2);background:rgba(217,0,0,.08);color:var(--white);}
+
     /* ── Empty / loading ── */
     .empty-state{text-align:center;padding:70px 20px;color:var(--gray);}
     .empty-state .icon{font-size:3rem;margin-bottom:14px;}
@@ -131,7 +139,15 @@
     <h1 class="page-title">Gestão de <span>Pedidos</span></h1>
     <div class="divider"></div>
 
-    <!-- Filtros -->
+    <!-- Filtro por cliente -->
+    <div class="filtro-cliente-wrap">
+      <span class="filtro-cliente-label">Cliente:</span>
+      <select class="select-cliente" id="select-cliente" onchange="filtrarCliente(this.value)">
+        <option value="todos">Todos os clientes</option>
+      </select>
+    </div>
+
+    <!-- Filtros de status -->
     <div class="filtros" id="filtros">
       <button class="filtro-btn ativo" data-filtro="todos" onclick="filtrar('todos')">Todos <span class="contador" id="cnt-todos">0</span></button>
       <button class="filtro-btn" data-filtro="criado" onclick="filtrar('criado')">Criado <span class="contador" id="cnt-criado">0</span></button>
@@ -162,8 +178,9 @@
       cancelado_fornecedor: 'Cancelado pelo Fornecedor'
     };
 
-    let todosPedidos = [];
-    let filtroAtual  = 'todos';
+    let todosPedidos  = [];
+    let filtroAtual   = 'todos';
+    let filtroCliente = 'todos';
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
@@ -194,33 +211,63 @@
 
       todosPedidos = pedidos.map(p => ({ ...p, _perfil: perfilMap[p.created_by] || null }));
 
+      populateClienteFilter();
       atualizarContadores();
-      renderizar(todosPedidos);
+      aplicarFiltros();
+    }
+
+    function pedidosDoCliente() {
+      return filtroCliente === 'todos'
+        ? todosPedidos
+        : todosPedidos.filter(p => p.created_by === filtroCliente);
     }
 
     function atualizarContadores() {
-      const total = todosPedidos.length;
-      const criado      = todosPedidos.filter(p => p.status === 'criado').length;
-      const processando = todosPedidos.filter(p => p.status === 'processando').length;
-      const confirmado  = todosPedidos.filter(p => p.status === 'confirmado').length;
-      const cancelados  = todosPedidos.filter(p => p.status.startsWith('cancelado')).length;
+      const base = pedidosDoCliente();
+      document.getElementById('cnt-todos').textContent       = base.length;
+      document.getElementById('cnt-criado').textContent      = base.filter(p => p.status === 'criado').length;
+      document.getElementById('cnt-processando').textContent = base.filter(p => p.status === 'processando').length;
+      document.getElementById('cnt-confirmado').textContent  = base.filter(p => p.status === 'confirmado').length;
+      document.getElementById('cnt-cancelados').textContent  = base.filter(p => p.status.startsWith('cancelado')).length;
+    }
 
-      document.getElementById('cnt-todos').textContent       = total;
-      document.getElementById('cnt-criado').textContent      = criado;
-      document.getElementById('cnt-processando').textContent = processando;
-      document.getElementById('cnt-confirmado').textContent  = confirmado;
-      document.getElementById('cnt-cancelados').textContent  = cancelados;
+    function populateClienteFilter() {
+      const sel = document.getElementById('select-cliente');
+      const clientesMap = {};
+      todosPedidos.forEach(p => {
+        if (p.created_by && p._perfil) {
+          clientesMap[p.created_by] = p._perfil.nome || p._perfil.email || '—';
+        }
+      });
+      const sorted = Object.entries(clientesMap).sort((a, b) => a[1].localeCompare(b[1]));
+      sel.innerHTML = '<option value="todos">Todos os clientes</option>' +
+        sorted.map(([id, nome]) => `<option value="${id}">${nome}</option>`).join('');
+      sel.value = filtroCliente;
+    }
+
+    function filtrarCliente(clienteId) {
+      filtroCliente = clienteId;
+      const sel = document.getElementById('select-cliente');
+      sel.classList.toggle('tem-filtro', clienteId !== 'todos');
+      atualizarContadores();
+      aplicarFiltros();
     }
 
     function filtrar(f) {
       filtroAtual = f;
       document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('ativo', b.dataset.filtro === f));
+      atualizarContadores();
+      aplicarFiltros();
+    }
 
-      const filtrados = f === 'todos'      ? todosPedidos
-        : f === 'cancelados' ? todosPedidos.filter(p => p.status.startsWith('cancelado'))
-        : todosPedidos.filter(p => p.status === f);
-
-      renderizar(filtrados);
+    function aplicarFiltros() {
+      let lista = pedidosDoCliente();
+      if (filtroAtual !== 'todos') {
+        lista = filtroAtual === 'cancelados'
+          ? lista.filter(p => p.status.startsWith('cancelado'))
+          : lista.filter(p => p.status === filtroAtual);
+      }
+      renderizar(lista);
     }
 
     function renderizar(lista) {
