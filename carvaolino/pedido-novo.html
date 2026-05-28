@@ -173,8 +173,9 @@
           .eq('tipo', 'admin')
           .eq('ativo', true);
         if (!admins?.length) return;
+        const url = `${EMAIL_SCRIPT_URL}?tipo=${encodeURIComponent(dados.tipo || 'credencial')}`;
         admins.forEach(admin => {
-          fetch(EMAIL_SCRIPT_URL, {
+          fetch(url, {
             method: 'POST', mode: 'no-cors',
             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify({ ...dados, to_email: admin.email, to_name: admin.nome })
