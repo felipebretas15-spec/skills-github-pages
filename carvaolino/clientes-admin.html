@@ -138,8 +138,13 @@
           <div class="field">
             <label for="nome-cliente">Nome do Cliente</label>
             <input type="text" id="nome-cliente" placeholder="Razão social ou nome completo" required />
+            <span class="hint"></span>
           </div>
-          <button type="submit" class="btn-primary" id="btn-salvar-cliente">Cadastrar</button>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button type="submit" class="btn-primary" id="btn-salvar-cliente">Cadastrar</button>
+            <span class="hint"></span>
+          </div>
         </div>
         <div class="msg" id="msg-cliente"></div>
       </form>
@@ -370,9 +375,12 @@
         btn.disabled = false; btn.textContent = '+ Criar';
         const erros = {
           'User already registered': 'Este e-mail já está cadastrado.',
-          'Password should be at least 6 characters': 'Senha deve ter ao menos 6 caracteres.'
+          'Password should be at least 6 characters': 'A senha deve ter ao menos 6 caracteres.',
+          'Signups not allowed for this instance': 'Cadastros desativados no Supabase. Ative em Authentication → Settings → Enable email signups.',
+          'Email signups are disabled': 'Cadastros por e-mail desativados. Ative em Authentication → Providers → Email.',
+          'Anonymous sign-ins are disabled': 'Erro de configuração. Verifique as opções de autenticação no Supabase.'
         };
-        showMsg(msg, 'erro', erros[error.message] || 'Erro ao criar usuário.');
+        showMsg(msg, 'erro', erros[error.message] || `Erro: ${error.message}`);
         return;
       }
 
