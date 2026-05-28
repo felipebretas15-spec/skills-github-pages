@@ -320,6 +320,16 @@
         return;
       }
 
+      // Verifica se o usuário está ativo
+      const { data: perfil } = await sb.from('profiles').select('ativo').eq('id', data.user.id).single();
+      if (perfil && perfil.ativo === false) {
+        await sb.auth.signOut();
+        showErro('Usuário desativado. Entre em contato com o administrador.');
+        btnLogin.textContent = 'Entrar';
+        btnLogin.disabled = false;
+        return;
+      }
+
       showOk('Login realizado! Redirecionando...');
       setTimeout(() => { window.location.href = 'dashboard.html'; }, 1200);
     });

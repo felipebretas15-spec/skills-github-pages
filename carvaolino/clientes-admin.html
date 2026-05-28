@@ -101,6 +101,16 @@
     .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
+    /* Estado do usuário */
+    .usuario-item.inativo{opacity:.45;}
+    .usuario-item.inativo .usuario-nome{text-decoration:line-through;}
+    .badge-inativo{background:rgba(120,120,120,.12) !important;color:#666 !important;border:1px solid rgba(120,120,120,.25) !important;}
+    .btn-toggle-user{background:transparent;font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:4px 11px;border-radius:4px;cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;}
+    .btn-toggle-user.desativar{color:#ef5350;border:1px solid rgba(239,83,80,.35);}
+    .btn-toggle-user.desativar:hover{background:rgba(239,83,80,.12);}
+    .btn-toggle-user.ativar{color:#66bb6a;border:1px solid rgba(102,187,106,.35);}
+    .btn-toggle-user.ativar:hover{background:rgba(102,187,106,.1);}
+
     /* Empresa Administradora */
     .admin-empresa{border-color:rgba(255,106,0,.35) !important;}
     .admin-empresa:hover{border-color:rgba(255,106,0,.6) !important;}
@@ -172,6 +182,8 @@
       'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
     );
 
+    let meuId = null; // ID do usuário logado (para impedir auto-desativação)
+
     /* ── Máscara CPF/CNPJ ── */
     function mascaraCodigo(v) {
       const n = v.replace(/\D/g, '').slice(0, 14);
@@ -230,6 +242,7 @@
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
+      meuId = session.user.id;
       initInatividade(sb);
       const { data: p } = await sb.from('profiles').select('tipo').eq('id', session.user.id).single();
       if (!p || p.tipo !== 'admin') { window.location.href = 'dashboard.html'; return; }
@@ -283,7 +296,7 @@
       }
 
       // Busca contagem de usuários por cliente
-      const { data: perfis } = await sb.from('profiles').select('id, nome, email, tipo, cliente_id').not('cliente_id', 'is', null);
+      const { data: perfis } = await sb.from('profiles').select('id, nome, email, tipo, ativo, cliente_id').not('cliente_id', 'is', null);
       const perfisMap = {};
       (perfis || []).forEach(p => {
         if (!perfisMap[p.cliente_id]) perfisMap[p.cliente_id] = [];
@@ -303,14 +316,26 @@
         const isAdminEmp  = c.tipo === 'admin';
 
         const listaUsuarios = usuarios.length
-          ? usuarios.map(u => `
-              <div class="usuario-item">
+          ? usuarios.map(u => {
+              const inativo = u.ativo === false;
+              const ehEu    = u.id === meuId;
+              const badgeClass = inativo ? 'usuario-badge badge-inativo' : `usuario-badge${u.tipo === 'admin' ? ' admin' : ''}`;
+              const badgeText  = inativo ? 'Inativo' : (u.tipo === 'admin' ? 'Administrador' : 'Cliente');
+              const btnToggle  = !ehEu
+                ? `<button class="btn-toggle-user ${inativo ? 'ativar' : 'desativar'}" onclick="toggleUsuario('${u.id}', ${inativo})">${inativo ? 'Ativar' : 'Desativar'}</button>`
+                : '';
+              return `
+              <div class="usuario-item${inativo ? ' inativo' : ''}" id="ui-${u.id}" data-tipo="${u.tipo || 'cliente'}">
                 <div>
                   <div class="usuario-nome">${u.nome || '—'}</div>
                   <div class="usuario-email">${u.email || '—'}</div>
                 </div>
-                <span class="usuario-badge${u.tipo === 'admin' ? ' admin' : ''}">${u.tipo === 'admin' ? 'Administrador' : 'Cliente'}</span>
-              </div>`).join('')
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                  <span class="${badgeClass}">${badgeText}</span>
+                  ${btnToggle}
+                </div>
+              </div>`;
+            }).join('')
           : '<div class="empty-users">Nenhum usuário vinculado ainda.</div>';
 
         return `
@@ -410,13 +435,18 @@
 
       // Atualiza a lista de usuários do card sem recarregar tudo
       const ul = document.getElementById(`ul-${clienteId}`);
+      const { data: novoPerfil } = await sb.from('profiles').select('id').eq('email', email).single();
+      const novoUserId = novoPerfil?.id || '';
       const novoItem = `
-        <div class="usuario-item">
+        <div class="usuario-item" id="ui-${novoUserId}" data-tipo="${tipoUsuario}">
           <div>
             <div class="usuario-nome">${nome}</div>
             <div class="usuario-email">${email}</div>
           </div>
-          <span class="usuario-badge${tipoUsuario === 'admin' ? ' admin' : ''}">${tipoUsuario === 'admin' ? 'Administrador' : 'Cliente'}</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+            <span class="usuario-badge${tipoUsuario === 'admin' ? ' admin' : ''}">${tipoUsuario === 'admin' ? 'Administrador' : 'Cliente'}</span>
+            ${novoUserId && novoUserId !== meuId ? `<button class="btn-toggle-user desativar" onclick="toggleUsuario('${novoUserId}', false)">Desativar</button>` : ''}
+          </div>
         </div>`;
       ul.querySelector('.empty-users')?.remove();
       ul.insertAdjacentHTML('beforeend', novoItem);
@@ -436,6 +466,40 @@
         ${atual} usuário${atual !== 1 ? 's' : ''}`;
 
       showMsg(msg, 'ok', `Usuário "${nome}" criado e vinculado com sucesso!`);
+    }
+
+    /* ── Ativar / Desativar usuário ── */
+    async function toggleUsuario(userId, estaInativo) {
+      if (userId === meuId) return; // nunca desativa a si mesmo
+      const acao = estaInativo ? 'ativar' : 'desativar';
+      if (!confirm(`Confirma ${acao} este usuário?`)) return;
+
+      const novoEstado = !estaInativo; // true = ativo, false = inativo
+      const { error } = await sb.from('profiles').update({ ativo: novoEstado }).eq('id', userId);
+      if (error) { alert('Erro ao atualizar usuário.'); return; }
+
+      // Atualiza a UI inline sem recarregar
+      const item   = document.getElementById(`ui-${userId}`);
+      if (!item) return;
+      const tipo   = item.dataset.tipo;
+      const badge  = item.querySelector('.usuario-badge, [class*="usuario-badge"]');
+      const btn    = item.querySelector('.btn-toggle-user');
+
+      if (novoEstado) {
+        item.classList.remove('inativo');
+        badge.className = `usuario-badge${tipo === 'admin' ? ' admin' : ''}`;
+        badge.textContent = tipo === 'admin' ? 'Administrador' : 'Cliente';
+        btn.className = 'btn-toggle-user desativar';
+        btn.textContent = 'Desativar';
+        btn.setAttribute('onclick', `toggleUsuario('${userId}', false)`);
+      } else {
+        item.classList.add('inativo');
+        badge.className = 'usuario-badge badge-inativo';
+        badge.textContent = 'Inativo';
+        btn.className = 'btn-toggle-user ativar';
+        btn.textContent = 'Ativar';
+        btn.setAttribute('onclick', `toggleUsuario('${userId}', true)`);
+      }
     }
 
     function showMsg(el, tipo, txt) {
