@@ -505,13 +505,17 @@
       enviarEmailCredenciais(nome, email, senha, 'Sua conta no sistema da Carvão Lino foi criada. Seus dados de acesso:');
     }
 
-    /* ── Envio de e-mail via Edge Function ── */
+    /* ── Envio de e-mail via Google Apps Script ── */
+    const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFABEFqzcb2s6McnpQIzIefEG7fGST1lXaQT26tbFaLLj-abRB1Ko2nZGp37kA1pmqlw/exec';
+
     async function enviarEmailCredenciais(nomeUsuario, emailUsuario, senha, acao) {
       try {
-        const { error } = await sb.functions.invoke('enviar-email', {
-          body: { to_email: emailUsuario, to_name: nomeUsuario, user_password: senha, acao }
+        fetch(EMAIL_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ to_email: emailUsuario, to_name: nomeUsuario, user_password: senha, acao })
         });
-        if (error) console.warn('E-mail não enviado:', error.message);
       } catch (e) {
         console.warn('E-mail não enviado:', e);
       }
