@@ -4,7 +4,7 @@ console.log('[notificacoes.js] arquivo carregado');
 // O GAS funciona como relay: recebe { to_email, subject, html_body }
 // e envia diretamente, sem lógica de roteamento.
 
-const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFABEFqzcb2s6McnpQIzIefEG7fGST1lXaQT26tbFaLLj-abRB1Ko2nZGp37kA1pmqlw/exec';
+const EMAIL_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzmmhqFLaTSNb0BPIVIJHMpKE8JufOb0aMEnq0NQlsqI_AxRUTG7fl_Erbp7Mz4sNmSgg/exec';
 
 // ── Layout base ──────────────────────────────────────────────────
 function _emailBase(conteudo) {
