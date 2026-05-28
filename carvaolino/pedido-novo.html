@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novo Pedido – Carvão Lino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red:#d90000; --red2:#ff2200; --ember:#ff6a00;
+      --black:#0a0a0a; --dark:#111111; --card:#161616;
+      --gray:#888888; --white:#ffffff;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;}
+
+    /* Header */
+    header{background:rgba(10,10,10,.95);border-bottom:1px solid rgba(217,0,0,.25);backdrop-filter:blur(10px);padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .header-logo img{height:44px;filter:drop-shadow(0 0 8px rgba(217,0,0,.3));}
+    .btn-back{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--gray);font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:6px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
+    .btn-back:hover{border-color:var(--red2);color:var(--red2);}
+    .btn-back svg{width:15px;height:15px;}
+
+    /* Layout */
+    .page-wrap{flex:1;display:grid;grid-template-columns:1fr 340px;gap:32px;padding:40px 5% 100px;max-width:1200px;margin:0 auto;width:100%;}
+
+    .page-label{font-size:.72rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red2);margin-bottom:8px;}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);letter-spacing:2px;line-height:1;}
+    .page-title span{color:var(--red2);}
+    .divider{width:50px;height:3px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:2px;margin:14px 0 32px;}
+
+    /* Produtos grid */
+    .produtos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;}
+    .prod-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:12px;overflow:hidden;transition:border-color .25s,transform .25s;}
+    .prod-card.selecionado{border-color:rgba(217,0,0,.5);box-shadow:0 0 24px rgba(217,0,0,.15);}
+    .prod-foto{width:100%;height:140px;object-fit:cover;display:block;background:#1e1e1e;}
+    .prod-foto-ph{width:100%;height:140px;background:#1e1e1e;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#333;}
+    .prod-info{padding:12px 14px 6px;}
+    .prod-nome{font-weight:700;font-size:.9rem;margin-bottom:4px;}
+    .prod-preco{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--red2);}
+    .prod-qty{display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 14px 14px;}
+    .btn-qty{width:32px;height:32px;border-radius:6px;border:1px solid rgba(217,0,0,.4);background:transparent;color:var(--white);font-size:1.2rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .btn-qty:hover{background:rgba(217,0,0,.2);}
+    .qty-val{min-width:28px;text-align:center;font-weight:700;font-size:1rem;}
+
+    .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--gray);}
+    .empty-state .icon{font-size:3rem;margin-bottom:12px;}
+
+    /* Resumo lateral */
+    .resumo-wrap{position:sticky;top:90px;height:fit-content;}
+    .resumo-card{background:var(--card);border:1px solid rgba(217,0,0,.2);border-radius:16px;padding:28px;}
+    .resumo-titulo{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:2px;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.06);}
+    .resumo-lista{min-height:60px;margin-bottom:20px;}
+    .resumo-item{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;gap:12px;}
+    .resumo-item-nome{color:#ccc;flex:1;}
+    .resumo-item-sub{font-weight:700;color:var(--white);white-space:nowrap;}
+    .resumo-item-qty{font-size:.72rem;color:var(--gray);margin-top:2px;}
+    .resumo-vazio{color:var(--gray);font-size:.82rem;text-align:center;padding:20px 0;}
+    .resumo-total{display:flex;justify-content:space-between;align-items:center;padding:16px 0 20px;border-top:1px solid rgba(217,0,0,.25);}
+    .resumo-total-label{font-weight:700;font-size:.85rem;text-transform:uppercase;letter-spacing:1px;color:#aaa;}
+    .resumo-total-valor{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--red2);}
+
+    .btn-finalizar{width:100%;background:linear-gradient(135deg,var(--red),var(--red2));color:var(--white);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.88rem;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:8px;padding:15px;cursor:pointer;box-shadow:0 4px 16px rgba(217,0,0,.35);transition:transform .2s,box-shadow .2s;}
+    .btn-finalizar:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(255,34,0,.45);}
+    .btn-finalizar:disabled{opacity:.4;cursor:not-allowed;}
+
+    /* Modal de sucesso */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.aberto{display:flex;}
+    .modal{background:var(--card);border:1px solid rgba(217,0,0,.3);border-radius:20px;padding:48px 40px;max-width:420px;width:100%;text-align:center;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+    .modal-icon{font-size:4rem;margin-bottom:16px;}
+    .modal-titulo{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:2px;margin-bottom:8px;}
+    .modal-numero{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:var(--red2);letter-spacing:3px;line-height:1;margin:16px 0;}
+    .modal-label{font-size:.72rem;letter-spacing:3px;text-transform:uppercase;color:var(--gray);margin-bottom:4px;}
+    .modal-desc{font-size:.85rem;color:var(--gray);line-height:1.6;margin-bottom:32px;}
+    .modal-btns{display:flex;flex-direction:column;gap:10px;}
+    .btn-modal-prim{background:linear-gradient(135deg,var(--red),var(--red2));color:var(--white);font-family:'Montserrat',sans-serif;font-weight:700;font-size:.85rem;letter-spacing:1.5px;text-transform:uppercase;border:none;border-radius:8px;padding:14px;cursor:pointer;text-decoration:none;display:block;transition:opacity .2s;}
+    .btn-modal-prim:hover{opacity:.9;}
+    .btn-modal-sec{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--gray);font-family:'Montserrat',sans-serif;font-weight:600;font-size:.82rem;letter-spacing:1px;text-transform:uppercase;border-radius:8px;padding:12px;cursor:pointer;transition:border-color .2s,color .2s;}
+    .btn-modal-sec:hover{border-color:var(--red2);color:var(--red2);}
+
+    /* Loading */
+    #loading{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .4s;}
+    .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:860px){
+      .page-wrap{grid-template-columns:1fr;}
+      .resumo-wrap{position:fixed;bottom:0;left:0;right:0;z-index:50;padding:0 16px 16px;background:linear-gradient(to top,#0a0a0a 80%,transparent);}
+      .resumo-card{border-radius:16px;padding:20px;}
+      .resumo-lista{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <header>
+    <a href="index.html" class="header-logo"><img src="logo.png" alt="Carvão Lino" /></a>
+    <a href="dashboard.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
+  </header>
+
+  <div class="page-wrap">
+
+    <!-- Coluna esquerda: produtos -->
+    <div>
+      <p class="page-label">Novo Pedido</p>
+      <h1 class="page-title">Selecione os <span>Produtos</span></h1>
+      <div class="divider"></div>
+      <div class="produtos-grid" id="produtos-grid">
+        <div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando produtos...</div></div>
+      </div>
+    </div>
+
+    <!-- Coluna direita: resumo -->
+    <div class="resumo-wrap">
+      <div class="resumo-card">
+        <div class="resumo-titulo">Resumo do Pedido</div>
+        <div class="resumo-lista" id="resumo-lista">
+          <div class="resumo-vazio">Nenhum produto selecionado</div>
+        </div>
+        <div class="resumo-total">
+          <span class="resumo-total-label">Total</span>
+          <span class="resumo-total-valor" id="resumo-total">R$ 0,00</span>
+        </div>
+        <button class="btn-finalizar" id="btn-finalizar" disabled>Finalizar Pedido</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal de sucesso -->
+  <div class="modal-overlay" id="modal-sucesso">
+    <div class="modal">
+      <div class="modal-icon">🔥</div>
+      <div class="modal-titulo">Pedido Realizado!</div>
+      <div class="modal-label">Número do Pedido</div>
+      <div class="modal-numero" id="modal-numero">#000</div>
+      <p class="modal-desc">Seu pedido foi registrado com sucesso. Você pode acompanhar o status em <strong>Meus Pedidos</strong>.</p>
+      <div class="modal-btns">
+        <a href="pedidos.html" class="btn-modal-prim">Ver Meus Pedidos</a>
+        <button class="btn-modal-sec" onclick="novoPedido()">Fazer Outro Pedido</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://vjqautajuqvchhyxhbij.supabase.co',
+      'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
+    );
+
+    let sessao = null;
+    let produtos = [];
+    let carrinho = {}; // { id: { ...produto, qtd } }
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      sessao = session;
+
+      await carregarProdutos();
+
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+    }
+
+    async function carregarProdutos() {
+      const { data, error } = await sb.from('produtos')
+        .select('*').eq('ativo', true).order('nome');
+
+      const grid = document.getElementById('produtos-grid');
+
+      if (error || !data || !data.length) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto disponível no momento.</div></div>';
+        return;
+      }
+
+      produtos = data;
+      grid.innerHTML = produtos.map(p => `
+        <div class="prod-card" id="pc-${p.id}">
+          ${p.foto_url
+            ? `<img class="prod-foto" src="${p.foto_url}" alt="${p.nome}" />`
+            : `<div class="prod-foto-ph">🪵</div>`}
+          <div class="prod-info">
+            <div class="prod-nome">${p.nome}</div>
+            <div class="prod-preco">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</div>
+          </div>
+          <div class="prod-qty">
+            <button class="btn-qty" onclick="ajustarQtd('${p.id}', -1)">−</button>
+            <span class="qty-val" id="qty-${p.id}">0</span>
+            <button class="btn-qty" onclick="ajustarQtd('${p.id}', +1)">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function ajustarQtd(id, delta) {
+      const prod = produtos.find(p => p.id === id);
+      if (!prod) return;
+
+      if (!carrinho[id]) carrinho[id] = { ...prod, qtd: 0 };
+      carrinho[id].qtd = Math.max(0, carrinho[id].qtd + delta);
+
+      if (carrinho[id].qtd === 0) delete carrinho[id];
+
+      document.getElementById(`qty-${id}`).textContent = carrinho[id]?.qtd || 0;
+      document.getElementById(`pc-${id}`).classList.toggle('selecionado', !!(carrinho[id]?.qtd > 0));
+
+      atualizarResumo();
+    }
+
+    function atualizarResumo() {
+      const itens = Object.values(carrinho);
+      const lista = document.getElementById('resumo-lista');
+      const totalEl = document.getElementById('resumo-total');
+      const btnFin = document.getElementById('btn-finalizar');
+
+      if (!itens.length) {
+        lista.innerHTML = '<div class="resumo-vazio">Nenhum produto selecionado</div>';
+        totalEl.textContent = 'R$ 0,00';
+        btnFin.disabled = true;
+        return;
+      }
+
+      const total = itens.reduce((s, i) => s + i.qtd * parseFloat(i.preco), 0);
+
+      lista.innerHTML = itens.map(i => `
+        <div class="resumo-item">
+          <div>
+            <div class="resumo-item-nome">${i.nome}</div>
+            <div class="resumo-item-qty">${i.qtd}x · R$ ${parseFloat(i.preco).toFixed(2).replace('.', ',')}</div>
+          </div>
+          <div class="resumo-item-sub">R$ ${(i.qtd * parseFloat(i.preco)).toFixed(2).replace('.', ',')}</div>
+        </div>
+      `).join('');
+
+      totalEl.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
+      btnFin.disabled = false;
+    }
+
+    document.getElementById('btn-finalizar').addEventListener('click', async () => {
+      const itens = Object.values(carrinho);
+      if (!itens.length) return;
+
+      const btn = document.getElementById('btn-finalizar');
+      btn.disabled = true;
+      btn.textContent = 'Processando...';
+
+      const total = itens.reduce((s, i) => s + i.qtd * parseFloat(i.preco), 0);
+
+      const { data: pedido, error: pedErr } = await sb.from('pedidos')
+        .insert({ total: parseFloat(total.toFixed(2)), created_by: sessao.user.id, status: 'criado' })
+        .select('id, numero').single();
+
+      if (pedErr) {
+        alert('Erro ao criar pedido. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Finalizar Pedido';
+        return;
+      }
+
+      const itensData = itens.map(i => ({
+        pedido_id: pedido.id,
+        produto_id: i.id,
+        nome_produto: i.nome,
+        preco_unitario: parseFloat(i.preco),
+        quantidade: i.qtd,
+        subtotal: parseFloat((i.qtd * parseFloat(i.preco)).toFixed(2))
+      }));
+
+      const { error: itErr } = await sb.from('pedidos_itens').insert(itensData);
+
+      if (itErr) {
+        await sb.from('pedidos').delete().eq('id', pedido.id);
+        alert('Erro ao registrar itens. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Finalizar Pedido';
+        return;
+      }
+
+      const num = String(pedido.numero).padStart(4, '0');
+      document.getElementById('modal-numero').textContent = '#' + num;
+      document.getElementById('modal-sucesso').classList.add('aberto');
+    });
+
+    function novoPedido() {
+      carrinho = {};
+      document.getElementById('modal-sucesso').classList.remove('aberto');
+      document.querySelectorAll('.qty-val').forEach(el => el.textContent = '0');
+      document.querySelectorAll('.prod-card').forEach(el => el.classList.remove('selecionado'));
+      atualizarResumo();
+      document.getElementById('btn-finalizar').textContent = 'Finalizar Pedido';
+    }
+
+    init();
+  </script>
+</body>
+</html>

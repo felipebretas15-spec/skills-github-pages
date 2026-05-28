@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meus Pedidos – Carvão Lino</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root{--red:#d90000;--red2:#ff2200;--ember:#ff6a00;--black:#0a0a0a;--dark:#111111;--card:#161616;--gray:#888888;--white:#ffffff;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Montserrat',sans-serif;background:var(--black);color:var(--white);min-height:100vh;display:flex;flex-direction:column;}
+
+    header{background:rgba(10,10,10,.95);border-bottom:1px solid rgba(217,0,0,.25);backdrop-filter:blur(10px);padding:0 5%;height:70px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+    .header-logo img{height:44px;filter:drop-shadow(0 0 8px rgba(217,0,0,.3));}
+    .btn-back{display:flex;align-items:center;gap:7px;background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--gray);font-family:'Montserrat',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:6px;cursor:pointer;text-decoration:none;transition:border-color .2s,color .2s;}
+    .btn-back:hover{border-color:var(--red2);color:var(--red2);}
+    .btn-back svg{width:15px;height:15px;}
+
+    main{flex:1;padding:48px 5% 80px;max-width:960px;margin:0 auto;width:100%;}
+
+    .page-label{font-size:.72rem;font-weight:700;letter-spacing:4px;text-transform:uppercase;color:var(--red2);margin-bottom:8px;}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3rem);letter-spacing:2px;line-height:1;}
+    .page-title span{color:var(--red2);}
+    .divider{width:50px;height:3px;background:linear-gradient(90deg,var(--red),var(--red2));border-radius:2px;margin:14px 0 36px;}
+
+    /* Status badges */
+    .badge{display:inline-block;font-size:.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:50px;white-space:nowrap;}
+    .badge-criado         {background:rgba(33,150,243,.15);color:#64b5f6;border:1px solid rgba(33,150,243,.3);}
+    .badge-processando    {background:rgba(255,106,0,.15);color:var(--ember);border:1px solid rgba(255,106,0,.3);}
+    .badge-confirmado     {background:rgba(76,175,80,.15);color:#81c784;border:1px solid rgba(76,175,80,.3);}
+    .badge-cancelado_usuario  {background:rgba(217,0,0,.15);color:#ef9a9a;border:1px solid rgba(217,0,0,.3);}
+    .badge-cancelado_fornecedor{background:rgba(139,0,0,.25);color:#ef9a9a;border:1px solid rgba(139,0,0,.4);}
+
+    /* Cards de pedido */
+    .pedidos-lista{display:flex;flex-direction:column;gap:16px;}
+
+    .pedido-card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;transition:border-color .25s;}
+    .pedido-card:hover{border-color:rgba(217,0,0,.2);}
+
+    .pedido-header{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;cursor:pointer;gap:16px;flex-wrap:wrap;}
+    .pedido-header-left{display:flex;align-items:center;gap:20px;flex-wrap:wrap;}
+    .pedido-numero{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:2px;color:var(--white);}
+    .pedido-data{font-size:.75rem;color:var(--gray);}
+    .pedido-header-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+    .pedido-total{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--red2);}
+    .chevron{transition:transform .3s;color:var(--gray);}
+    .pedido-card.aberto .chevron{transform:rotate(180deg);}
+
+    /* Itens (colapsável) */
+    .pedido-itens{display:none;border-top:1px solid rgba(255,255,255,.05);}
+    .pedido-card.aberto .pedido-itens{display:block;}
+    .itens-inner{padding:20px 24px;}
+
+    .itens-table{width:100%;border-collapse:collapse;font-size:.83rem;}
+    .itens-table th{text-align:left;color:var(--gray);font-size:.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0 0 10px;border-bottom:1px solid rgba(255,255,255,.06);}
+    .itens-table td{padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);color:#ccc;vertical-align:middle;}
+    .itens-table tr:last-child td{border-bottom:none;}
+    .itens-table .col-nome{font-weight:600;color:var(--white);}
+    .itens-table .col-sub{font-weight:700;color:var(--white);text-align:right;}
+    .itens-table .col-qty,.itens-table .col-preco{color:var(--gray);text-align:center;}
+
+    .itens-footer{display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);flex-wrap:wrap;gap:12px;}
+    .itens-total-label{font-size:.75rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gray);}
+    .itens-total-valor{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--red2);}
+
+    .btn-cancelar{background:transparent;border:1px solid rgba(217,0,0,.35);color:var(--gray);font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:8px 18px;border-radius:6px;cursor:pointer;transition:background .2s,color .2s,border-color .2s;}
+    .btn-cancelar:hover{background:rgba(217,0,0,.15);color:var(--red2);border-color:var(--red2);}
+
+    .empty-state{text-align:center;padding:80px 20px;color:var(--gray);}
+    .empty-state .icon{font-size:3.5rem;margin-bottom:16px;}
+    .empty-state a{color:var(--red2);font-weight:700;text-decoration:none;}
+    .empty-state a:hover{text-decoration:underline;}
+
+    #loading{position:fixed;inset:0;background:var(--black);display:flex;align-items:center;justify-content:center;z-index:999;transition:opacity .4s;}
+    .spinner{width:40px;height:40px;border:3px solid rgba(217,0,0,.2);border-top-color:var(--red2);border-radius:50%;animation:spin .7s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:600px){
+      .pedido-header{padding:14px 16px;}
+      .itens-inner{padding:16px;}
+      .itens-table .col-preco{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <header>
+    <a href="index.html" class="header-logo"><img src="logo.png" alt="Carvão Lino" /></a>
+    <a href="dashboard.html" class="btn-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
+  </header>
+
+  <main>
+    <p class="page-label">Histórico</p>
+    <h1 class="page-title">Meus <span>Pedidos</span></h1>
+    <div class="divider"></div>
+    <div id="pedidos-lista" class="pedidos-lista">
+      <div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando pedidos...</div></div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script>
+    const { createClient } = supabase;
+    const sb = createClient(
+      'https://vjqautajuqvchhyxhbij.supabase.co',
+      'sb_publishable_Q6nFbpECmBw0N4zfIbWNYA_hTUXx5LW'
+    );
+
+    const STATUS_LABEL = {
+      criado:               'Pedido Criado',
+      processando:          'Em Processamento',
+      confirmado:           'Confirmado',
+      cancelado_usuario:    'Cancelado pelo Cliente',
+      cancelado_fornecedor: 'Cancelado pelo Fornecedor'
+    };
+
+    const CANCELAVEL = ['criado', 'processando'];
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+
+      const { data: profile } = await sb.from('profiles').select('tipo').eq('id', session.user.id).single();
+      const isAdmin = profile?.tipo === 'admin';
+
+      let query = sb.from('pedidos')
+        .select('*, pedidos_itens(nome_produto, preco_unitario, quantidade, subtotal)')
+        .order('created_at', { ascending: false });
+
+      if (!isAdmin) query = query.eq('created_by', session.user.id);
+
+      const { data: pedidos, error } = await query;
+
+      document.getElementById('loading').style.opacity = '0';
+      setTimeout(() => document.getElementById('loading').style.display = 'none', 400);
+
+      const lista = document.getElementById('pedidos-lista');
+
+      if (error || !pedidos || !pedidos.length) {
+        lista.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">📋</div>
+            <div>Você ainda não fez nenhum pedido.</div>
+            <div style="margin-top:12px;"><a href="pedido-novo.html">Criar meu primeiro pedido →</a></div>
+          </div>`;
+        return;
+      }
+
+      lista.innerHTML = pedidos.map(p => {
+        const num  = '#' + String(p.numero).padStart(4, '0');
+        const data = new Date(p.created_at).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'numeric' });
+        const total = 'R$ ' + parseFloat(p.total).toFixed(2).replace('.', ',');
+        const badge = `<span class="badge badge-${p.status}">${STATUS_LABEL[p.status] || p.status}</span>`;
+        const cancelavel = CANCELAVEL.includes(p.status);
+
+        const linhasItens = (p.pedidos_itens || []).map(i => `
+          <tr>
+            <td class="col-nome">${i.nome_produto}</td>
+            <td class="col-preco">R$ ${parseFloat(i.preco_unitario).toFixed(2).replace('.', ',')}</td>
+            <td class="col-qty">${i.quantidade}x</td>
+            <td class="col-sub">R$ ${parseFloat(i.subtotal).toFixed(2).replace('.', ',')}</td>
+          </tr>`).join('');
+
+        return `
+          <div class="pedido-card" id="ped-${p.id}">
+            <div class="pedido-header" onclick="togglePedido('${p.id}')">
+              <div class="pedido-header-left">
+                <div class="pedido-numero">${num}</div>
+                <div>
+                  ${badge}
+                  <div class="pedido-data" style="margin-top:5px;">${data}</div>
+                </div>
+              </div>
+              <div class="pedido-header-right">
+                <div class="pedido-total">${total}</div>
+                <svg class="chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+            <div class="pedido-itens">
+              <div class="itens-inner">
+                <table class="itens-table">
+                  <thead><tr>
+                    <th>Produto</th>
+                    <th class="col-preco" style="text-align:center;">Preço Unit.</th>
+                    <th style="text-align:center;">Qtd.</th>
+                    <th style="text-align:right;">Subtotal</th>
+                  </tr></thead>
+                  <tbody>${linhasItens}</tbody>
+                </table>
+                <div class="itens-footer">
+                  <div>
+                    <div class="itens-total-label">Total do Pedido</div>
+                    <div class="itens-total-valor">${total}</div>
+                  </div>
+                  ${cancelavel ? `<button class="btn-cancelar" onclick="cancelarPedido('${p.id}')">Cancelar Pedido</button>` : ''}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function togglePedido(id) {
+      document.getElementById(`ped-${id}`)?.classList.toggle('aberto');
+    }
+
+    async function cancelarPedido(id) {
+      if (!confirm('Confirma o cancelamento deste pedido?')) return;
+
+      const { error } = await sb.from('pedidos')
+        .update({ status: 'cancelado_usuario', updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) { alert('Erro ao cancelar. Tente novamente.'); return; }
+
+      // Atualiza o badge e remove botão sem recarregar
+      const card = document.getElementById(`ped-${id}`);
+      card.querySelector('.badge').className = 'badge badge-cancelado_usuario';
+      card.querySelector('.badge').textContent = STATUS_LABEL.cancelado_usuario;
+      card.querySelector('.btn-cancelar')?.remove();
+    }
+
+    init();
+  </script>
+</body>
+</html>
