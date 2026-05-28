@@ -502,6 +502,19 @@
         ${atual} usuário${atual !== 1 ? 's' : ''}`;
 
       showMsg(msg, 'ok', `Usuário "${nome}" criado e vinculado com sucesso!`);
+      enviarEmailCredenciais(nome, email, senha, 'Sua conta no sistema da Carvão Lino foi criada. Seus dados de acesso:');
+    }
+
+    /* ── Envio de e-mail via Edge Function ── */
+    async function enviarEmailCredenciais(nomeUsuario, emailUsuario, senha, acao) {
+      try {
+        const { error } = await sb.functions.invoke('enviar-email', {
+          body: { to_email: emailUsuario, to_name: nomeUsuario, user_password: senha, acao }
+        });
+        if (error) console.warn('E-mail não enviado:', error.message);
+      } catch (e) {
+        console.warn('E-mail não enviado:', e);
+      }
     }
 
     /* ── Alterar senha ── */
@@ -544,6 +557,13 @@
       }
 
       showMsgSenha(msg, 'ok', 'Senha alterada com sucesso!');
+
+      // Envia e-mail com a nova senha
+      const item = document.getElementById(`ui-${userId}`);
+      const nomeUsuario  = item?.querySelector('.usuario-nome')?.textContent?.trim() || '';
+      const emailUsuario = item?.querySelector('.usuario-email')?.textContent?.trim() || '';
+      enviarEmailCredenciais(nomeUsuario, emailUsuario, senha, 'Sua senha no sistema da Carvão Lino foi atualizada. Seus novos dados de acesso:');
+
       document.getElementById(`sp-${userId}`).value = '';
       document.getElementById(`sc-${userId}`).value = '';
       setTimeout(() => toggleSenha(userId), 2000);
