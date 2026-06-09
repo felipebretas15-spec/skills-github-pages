@@ -214,6 +214,35 @@
     .back-link:hover { color: var(--red2); }
     .back-link svg { width: 16px; height: 16px; }
 
+    /* Painel de debug */
+    #debug-panel {
+      display: none;
+      position: relative;
+      z-index: 1;
+      margin-top: 16px;
+      width: 100%;
+      max-width: 420px;
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.72rem;
+      font-family: monospace;
+      color: #aaa;
+      word-break: break-all;
+      line-height: 1.6;
+    }
+    #debug-panel .debug-label {
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 6px;
+    }
+    #debug-panel .debug-code { color: #ff6a00; }
+    #debug-panel .debug-msg  { color: #ffcc00; }
+    #debug-panel .debug-status { color: #aaa; }
+
     @media (max-width: 480px) {
       .login-card { padding: 40px 28px 36px; margin: 0 16px; }
       .login-logo img { width: 160px; }
@@ -260,6 +289,15 @@
 
   </div>
 
+  <!-- Painel de debug visível no mobile -->
+  <div id="debug-panel">
+    <div class="debug-label">🔍 Detalhes do erro (debug)</div>
+    <div><span class="debug-status">status:</span> <span id="dbg-status"></span></div>
+    <div><span class="debug-status">code:</span> <span class="debug-code" id="dbg-code"></span></div>
+    <div><span class="debug-status">message:</span> <span class="debug-msg" id="dbg-msg"></span></div>
+    <div><span class="debug-status">name:</span> <span id="dbg-name"></span></div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script>
     const { createClient } = supabase;
@@ -272,6 +310,15 @@
     const btnLogin = document.getElementById('btn-entrar');
     const msgErro  = document.getElementById('msg-erro');
     const msgOk    = document.getElementById('msg-ok');
+
+    function mostrarDebug(error) {
+      const panel = document.getElementById('debug-panel');
+      document.getElementById('dbg-status').textContent = error.status  || '—';
+      document.getElementById('dbg-code').textContent   = error.code    || '—';
+      document.getElementById('dbg-msg').textContent    = error.message || '—';
+      document.getElementById('dbg-name').textContent   = error.name    || '—';
+      panel.style.display = 'block';
+    }
 
     function traduzirErro(error) {
       const msg  = (error.message || '').toLowerCase();
@@ -292,9 +339,7 @@
       if (msg.includes('network') || msg.includes('fetch'))
         return 'Erro de conexão. Verifique sua internet e tente novamente.';
 
-      // Exibe o código/mensagem real em desenvolvimento para facilitar debug
-      console.error('[Login] Supabase error:', error);
-      return `Erro ao entrar (${error.code || error.message || 'desconhecido'}). Tente novamente.`;
+      return `Erro ao entrar. Veja os detalhes abaixo.`;
     }
 
     function showErro(texto) {
@@ -318,10 +363,12 @@
       btnLogin.disabled = true;
       msgErro.style.display = 'none';
       msgOk.style.display = 'none';
+      document.getElementById('debug-panel').style.display = 'none';
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
 
       if (error) {
+        mostrarDebug(error);
         showErro(traduzirErro(error));
         btnLogin.textContent = 'Entrar';
         btnLogin.disabled = false;
