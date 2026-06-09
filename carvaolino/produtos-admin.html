@@ -29,7 +29,6 @@
       flex-direction: column;
     }
 
-    /* ── Header ── */
     header {
       background: rgba(10,10,10,0.95);
       border-bottom: 1px solid rgba(217,0,0,0.25);
@@ -45,7 +44,6 @@
     }
 
     .header-logo img { height: 44px; width: auto; filter: drop-shadow(0 0 8px rgba(217,0,0,0.3)); }
-
     .header-right { display: flex; align-items: center; gap: 16px; }
 
     .btn-back {
@@ -63,7 +61,6 @@
     .btn-back:hover { border-color: var(--red2); color: var(--red2); }
     .btn-back svg { width: 15px; height: 15px; }
 
-    /* ── Layout ── */
     main {
       flex: 1;
       padding: 48px 5% 80px;
@@ -90,7 +87,6 @@
       border-radius: 2px; margin-top: 14px;
     }
 
-    /* ── Formulário de cadastro ── */
     .form-card {
       background: var(--card);
       border: 1px solid rgba(217,0,0,0.2);
@@ -98,28 +94,23 @@
       padding: 36px;
       margin-bottom: 48px;
     }
-
     .form-card-title {
       font-size: 0.78rem; font-weight: 700;
       letter-spacing: 3px; text-transform: uppercase;
       color: var(--gray); margin-bottom: 28px;
     }
-
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr auto;
       gap: 20px;
       align-items: end;
     }
-
     .field { display: flex; flex-direction: column; gap: 8px; }
-
     label {
       font-size: 0.75rem; font-weight: 700;
       letter-spacing: 1.5px; text-transform: uppercase;
       color: #aaa;
     }
-
     input[type="text"],
     input[type="number"] {
       background: rgba(255,255,255,0.05);
@@ -141,7 +132,6 @@
       box-shadow: 0 0 0 3px rgba(217,0,0,0.15);
     }
 
-    /* Upload de foto */
     .upload-area {
       border: 2px dashed rgba(255,255,255,0.12);
       border-radius: 10px;
@@ -173,7 +163,6 @@
     .upload-preview.visible { display: block; }
     .upload-name { font-size: 0.72rem; color: var(--ember); margin-top: 4px; display: none; }
 
-    /* Preço */
     .preco-wrap { position: relative; }
     .preco-wrap span {
       position: absolute; left: 14px; top: 50%;
@@ -197,7 +186,6 @@
     .btn-salvar:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,34,0,0.45); }
     .btn-salvar:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* Mensagens */
     .msg {
       margin-top: 16px; padding: 10px 16px;
       border-radius: 6px; font-size: 0.82rem;
@@ -206,19 +194,16 @@
     .msg.erro { background: rgba(217,0,0,0.12); border: 1px solid rgba(217,0,0,0.4); color: var(--ember); }
     .msg.ok   { background: rgba(0,180,0,0.1);  border: 1px solid rgba(0,180,0,0.3);  color: #4caf50; }
 
-    /* ── Lista de produtos ── */
     .section-title {
       font-size: 0.78rem; font-weight: 700;
       letter-spacing: 3px; text-transform: uppercase;
       color: var(--gray); margin-bottom: 20px;
     }
-
     .produtos-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 20px;
     }
-
     .produto-card {
       background: var(--card);
       border: 1px solid rgba(255,255,255,0.06);
@@ -226,7 +211,6 @@
       transition: transform 0.25s, border-color 0.25s;
     }
     .produto-card:hover { transform: translateY(-4px); border-color: rgba(217,0,0,0.3); }
-
     .produto-foto {
       width: 100%; height: 160px;
       object-fit: cover; display: block;
@@ -238,7 +222,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 3rem; color: #333;
     }
-
     .produto-info { padding: 16px; }
     .produto-nome { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
     .produto-preco {
@@ -246,12 +229,10 @@
       font-size: 1.4rem; color: var(--red2);
       letter-spacing: 1px;
     }
-
     .produto-acoes {
       padding: 0 16px 16px;
       display: flex; gap: 8px;
     }
-
     .btn-editar {
       flex: 1;
       background: transparent;
@@ -265,7 +246,6 @@
       transition: background 0.2s, color 0.2s, border-color 0.2s;
     }
     .btn-editar:hover { background: rgba(255,106,0,0.15); color: var(--ember); border-color: var(--ember); }
-
     .btn-excluir {
       flex: 1;
       background: transparent;
@@ -279,7 +259,6 @@
       transition: background 0.2s, color 0.2s, border-color 0.2s;
     }
     .btn-excluir:hover { background: rgba(217,0,0,0.15); color: var(--red2); border-color: var(--red2); }
-
     .empty-state {
       grid-column: 1 / -1;
       text-align: center; padding: 60px 20px;
@@ -287,7 +266,7 @@
     }
     .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
 
-    /* ── Modal de edição ── */
+    /* Modal */
     .modal-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.75);
@@ -298,7 +277,6 @@
       transition: opacity 0.25s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
-
     .modal {
       background: var(--card);
       border: 1px solid rgba(217,0,0,0.3);
@@ -311,7 +289,6 @@
       transition: transform 0.25s;
     }
     .modal-overlay.open .modal { transform: translateY(0); }
-
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 28px;
@@ -328,11 +305,7 @@
       transition: color 0.2s;
     }
     .modal-close:hover { color: var(--white); }
-
-    .modal-form-grid {
-      display: flex; flex-direction: column; gap: 20px;
-    }
-
+    .modal-form-grid { display: flex; flex-direction: column; gap: 20px; }
     .modal-upload-area {
       border: 2px dashed rgba(255,255,255,0.12);
       border-radius: 10px;
@@ -359,10 +332,7 @@
       object-fit: contain; border-radius: 6px;
     }
     .modal-upload-hint { font-size: 0.75rem; color: var(--gray); }
-
-    .modal-actions {
-      display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap;
-    }
+    .modal-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
     .btn-atualizar {
       flex: 1;
       background: linear-gradient(135deg, #c45000, var(--ember));
@@ -389,7 +359,6 @@
       transition: border-color 0.2s, color 0.2s;
     }
     .btn-cancelar:hover { border-color: var(--white); color: var(--white); }
-
     .modal-msg {
       margin-top: 12px; padding: 10px 16px;
       border-radius: 6px; font-size: 0.82rem;
@@ -398,7 +367,6 @@
     .modal-msg.erro { background: rgba(217,0,0,0.12); border: 1px solid rgba(217,0,0,0.4); color: var(--ember); }
     .modal-msg.ok   { background: rgba(0,180,0,0.1);  border: 1px solid rgba(0,180,0,0.3);  color: #4caf50; }
 
-    /* ── Loading ── */
     #loading {
       position: fixed; inset: 0;
       background: var(--black);
@@ -439,24 +407,20 @@
   </header>
 
   <main>
-
     <div class="page-header">
       <p class="page-label">Admin</p>
       <h1 class="page-title">Gerenciamento de <span>Produtos</span></h1>
       <div class="divider"></div>
     </div>
 
-    <!-- Formulário de cadastro -->
     <div class="form-card">
       <p class="form-card-title">Cadastrar novo produto</p>
       <form id="form-produto">
         <div class="form-grid">
-
           <div class="field">
             <label for="nome">Nome do Produto</label>
             <input type="text" id="nome" placeholder="Ex: Carvão Vegetal 10kg" required />
           </div>
-
           <div class="field">
             <label for="preco">Preço</label>
             <div class="preco-wrap">
@@ -464,7 +428,6 @@
               <input type="number" id="preco" placeholder="0,00" min="0" step="0.01" required />
             </div>
           </div>
-
           <div class="field" style="min-width:160px;">
             <label>Foto do Produto</label>
             <div class="upload-area" id="upload-area">
@@ -477,19 +440,15 @@
               <div class="upload-name" id="upload-name"></div>
             </div>
           </div>
-
         </div>
-
         <div style="margin-top: 24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
           <button type="submit" class="btn-salvar" id="btn-salvar">Salvar Produto</button>
           <div class="msg erro" id="msg-erro"></div>
           <div class="msg ok"   id="msg-ok"></div>
         </div>
-
       </form>
     </div>
 
-    <!-- Lista de produtos -->
     <p class="section-title">Produtos cadastrados</p>
     <div class="produtos-grid" id="produtos-grid">
       <div class="empty-state">
@@ -497,7 +456,6 @@
         <div>Carregando produtos...</div>
       </div>
     </div>
-
   </main>
 
   <!-- Modal de edição -->
@@ -551,7 +509,9 @@
 
     const BUCKET = 'produtos-fotos';
 
-    // ── Auth: verifica sessão e se é admin ──
+    // Armazena os dados dos produtos para acesso seguro pelo id
+    const produtosMap = new Map();
+
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
@@ -571,7 +531,6 @@
       carregarProdutos();
     }
 
-    // ── Preview de foto (cadastro) ──
     document.getElementById('foto').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -591,7 +550,6 @@
       reader.readAsDataURL(file);
     });
 
-    // ── Salvar produto ──
     document.getElementById('form-produto').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('btn-salvar');
@@ -614,19 +572,16 @@
         const path = `${Date.now()}.${ext}`;
         const { data: up, error: upErr } = await sb.storage
           .from(BUCKET).upload(path, file, { upsert: false });
-
         if (upErr) {
           showErro('Erro ao fazer upload da foto.');
           btn.disabled = false; btn.textContent = 'Salvar Produto';
           return;
         }
-
         const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(up.path);
         foto_url = publicUrl;
       }
 
       const { error } = await sb.from('produtos').insert({ nome, preco, foto_url });
-
       if (error) {
         showErro('Erro ao salvar o produto. Tente novamente.');
         btn.disabled = false; btn.textContent = 'Salvar Produto';
@@ -653,7 +608,6 @@
       uploadArea.classList.remove('has-preview');
     }
 
-    // ── Carregar produtos ──
     async function carregarProdutos() {
       const grid = document.getElementById('produtos-grid');
       grid.innerHTML = '<div class="empty-state"><div class="spinner" style="margin:0 auto 16px;"></div><div>Carregando...</div></div>';
@@ -666,6 +620,9 @@
         return;
       }
 
+      produtosMap.clear();
+      produtos.forEach(p => produtosMap.set(p.id, p));
+
       grid.innerHTML = produtos.map(p => `
         <div class="produto-card" id="card-${p.id}">
           ${p.foto_url
@@ -677,55 +634,66 @@
             <div class="produto-preco">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</div>
           </div>
           <div class="produto-acoes">
-            <button class="btn-editar" onclick="abrirEdicao('${p.id}', ${JSON.stringify(p.nome).replace(/'/g, "\\'")}, ${p.preco}, '${p.foto_url || ''}')">
-              ✏️ Editar
-            </button>
-            <button class="btn-excluir" onclick="excluirProduto('${p.id}', '${p.foto_url || ''}', '${p.nome}')">
-              🗑 Excluir
-            </button>
+            <button class="btn-editar" data-id="${p.id}">✏️ Editar</button>
+            <button class="btn-excluir" data-id="${p.id}">🗑 Excluir</button>
           </div>
         </div>
       `).join('');
+
+      // Event listeners nos botões usando data-id
+      grid.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const produto = produtosMap.get(btn.dataset.id);
+          if (produto) abrirEdicao(produto);
+        });
+      });
+
+      grid.querySelectorAll('.btn-excluir').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const produto = produtosMap.get(btn.dataset.id);
+          if (produto) excluirProduto(produto);
+        });
+      });
     }
 
-    // ── Excluir produto ──
-    async function excluirProduto(id, fotoUrl, nome) {
-      if (!confirm(`Excluir o produto "${nome}"?`)) return;
+    async function excluirProduto(p) {
+      if (!confirm(`Excluir o produto "${p.nome}"?`)) return;
 
-      if (fotoUrl) {
-        const path = fotoUrl.split(`${BUCKET}/`)[1];
+      if (p.foto_url) {
+        const path = p.foto_url.split(`${BUCKET}/`)[1];
         if (path) await sb.storage.from(BUCKET).remove([path]);
       }
 
-      const { error } = await sb.from('produtos').delete().eq('id', id);
+      const { error } = await sb.from('produtos').delete().eq('id', p.id);
       if (error) { alert('Erro ao excluir produto.'); return; }
 
-      document.getElementById(`card-${id}`)?.remove();
+      document.getElementById(`card-${p.id}`)?.remove();
+      produtosMap.delete(p.id);
 
       const grid = document.getElementById('produtos-grid');
-      if (!grid.children.length) {
+      if (!grid.querySelector('.produto-card')) {
         grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto cadastrado ainda.</div></div>';
       }
     }
 
-    // ── Modal de edição ──
+    // Modal
     let editandoId = null;
     let editandoFotoAtual = null;
 
-    function abrirEdicao(id, nome, preco, fotoUrl) {
-      editandoId = id;
-      editandoFotoAtual = fotoUrl || null;
+    function abrirEdicao(p) {
+      editandoId = p.id;
+      editandoFotoAtual = p.foto_url || null;
 
-      document.getElementById('edit-nome').value = nome;
-      document.getElementById('edit-preco').value = preco;
+      document.getElementById('edit-nome').value = p.nome;
+      document.getElementById('edit-preco').value = p.preco;
       document.getElementById('edit-foto').value = '';
 
-      const preview = document.getElementById('edit-upload-preview');
+      const preview     = document.getElementById('edit-upload-preview');
       const placeholder = document.getElementById('edit-upload-placeholder');
-      const uploadArea = document.getElementById('edit-upload-area');
+      const uploadArea  = document.getElementById('edit-upload-area');
 
-      if (fotoUrl) {
-        preview.src = fotoUrl;
+      if (p.foto_url) {
+        preview.src = p.foto_url;
         preview.style.display = 'block';
         placeholder.style.display = 'none';
         uploadArea.classList.add('has-preview');
@@ -756,15 +724,14 @@
       if (e.target === document.getElementById('modal-overlay')) fecharModal();
     });
 
-    // Preview de foto no modal
     document.getElementById('edit-foto').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        const preview = document.getElementById('edit-upload-preview');
+        const preview     = document.getElementById('edit-upload-preview');
         const placeholder = document.getElementById('edit-upload-placeholder');
-        const uploadArea = document.getElementById('edit-upload-area');
+        const uploadArea  = document.getElementById('edit-upload-area');
         preview.src = ev.target.result;
         preview.style.display = 'block';
         placeholder.style.display = 'none';
@@ -773,7 +740,6 @@
       reader.readAsDataURL(file);
     });
 
-    // Salvar edição
     document.getElementById('btn-atualizar').addEventListener('click', async () => {
       if (!editandoId) return;
 
@@ -797,24 +763,20 @@
       let foto_url = editandoFotoAtual;
 
       if (file) {
-        // Remove foto antiga se existir
         if (editandoFotoAtual) {
           const oldPath = editandoFotoAtual.split(`${BUCKET}/`)[1];
           if (oldPath) await sb.storage.from(BUCKET).remove([oldPath]);
         }
-
         const ext  = file.name.split('.').pop();
         const path = `${Date.now()}.${ext}`;
         const { data: up, error: upErr } = await sb.storage
           .from(BUCKET).upload(path, file, { upsert: false });
-
         if (upErr) {
           document.getElementById('modal-msg-erro').textContent = 'Erro ao fazer upload da foto.';
           document.getElementById('modal-msg-erro').style.display = 'block';
           btn.disabled = false; btn.textContent = 'Salvar Alterações';
           return;
         }
-
         const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(up.path);
         foto_url = publicUrl;
       }
