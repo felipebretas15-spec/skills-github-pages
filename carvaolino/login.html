@@ -35,7 +35,6 @@
       position: relative;
     }
 
-    /* fundo com gradiente sutil igual ao hero */
     body::before {
       content: '';
       position: fixed;
@@ -44,7 +43,6 @@
       z-index: 0;
     }
 
-    /* texto fantasma de fundo */
     body::after {
       content: 'CARVÃO';
       position: fixed;
@@ -59,7 +57,6 @@
       z-index: 0;
     }
 
-    /* ── Card ── */
     .login-card {
       position: relative;
       z-index: 1;
@@ -75,7 +72,6 @@
       align-items: center;
     }
 
-    /* ── Logo ── */
     .login-logo {
       display: flex;
       align-items: center;
@@ -96,7 +92,6 @@
       margin-bottom: 36px;
     }
 
-    /* ── Divider ── */
     .divider {
       width: 50px; height: 3px;
       background: linear-gradient(90deg, var(--red), var(--red2));
@@ -104,7 +99,6 @@
       margin-bottom: 32px;
     }
 
-    /* ── Título do form ── */
     .login-title {
       font-size: 0.8rem;
       font-weight: 700;
@@ -115,7 +109,6 @@
       align-self: flex-start;
     }
 
-    /* ── Form ── */
     form { width: 100%; display: flex; flex-direction: column; gap: 16px; }
 
     .field {
@@ -185,8 +178,8 @@
     }
 
     .btn-login:active { transform: translateY(0); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    /* ── Rodapé do card ── */
     .login-footer {
       margin-top: 28px;
       font-size: 0.78rem;
@@ -202,7 +195,6 @@
     }
     .login-footer a:hover { color: var(--ember); }
 
-    /* ── Voltar ── */
     .back-link {
       position: fixed;
       top: 28px;
@@ -239,17 +231,14 @@
 
   <div class="login-card">
 
-    <!-- Logo -->
     <div class="login-logo">
       <img src="logo.png" alt="Carvão Lino" />
     </div>
     <p class="login-tagline">Área do Cliente</p>
     <div class="divider"></div>
 
-    <!-- Título -->
     <p class="login-title">Acesse sua conta</p>
 
-    <!-- Formulário -->
     <form id="login-form">
       <div class="field">
         <label for="email">E-mail</label>
@@ -284,6 +273,30 @@
     const msgErro  = document.getElementById('msg-erro');
     const msgOk    = document.getElementById('msg-ok');
 
+    function traduzirErro(error) {
+      const msg  = (error.message || '').toLowerCase();
+      const code = (error.code   || '').toLowerCase();
+
+      if (code === 'invalid_credentials' || msg.includes('invalid login credentials') || msg.includes('invalid credentials'))
+        return 'E-mail ou senha incorretos.';
+
+      if (code === 'email_not_confirmed' || msg.includes('email not confirmed'))
+        return 'Confirme seu e-mail antes de entrar.';
+
+      if (code === 'too_many_requests' || msg.includes('too many requests'))
+        return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.';
+
+      if (msg.includes('user not found') || msg.includes('no user found'))
+        return 'E-mail não cadastrado.';
+
+      if (msg.includes('network') || msg.includes('fetch'))
+        return 'Erro de conexão. Verifique sua internet e tente novamente.';
+
+      // Exibe o código/mensagem real em desenvolvimento para facilitar debug
+      console.error('[Login] Supabase error:', error);
+      return `Erro ao entrar (${error.code || error.message || 'desconhecido'}). Tente novamente.`;
+    }
+
     function showErro(texto) {
       msgErro.textContent = texto;
       msgErro.style.display = 'block';
@@ -309,18 +322,12 @@
       const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
 
       if (error) {
-        const msgs = {
-          'Invalid login credentials': 'E-mail ou senha incorretos.',
-          'Email not confirmed': 'Confirme seu e-mail antes de entrar.',
-          'Too many requests': 'Muitas tentativas. Tente novamente em alguns minutos.'
-        };
-        showErro(msgs[error.message] || 'Erro ao entrar. Tente novamente.');
+        showErro(traduzirErro(error));
         btnLogin.textContent = 'Entrar';
         btnLogin.disabled = false;
         return;
       }
 
-      // Verifica se o usuário está ativo
       const { data: perfil } = await sb.from('profiles').select('ativo').eq('id', data.user.id).single();
       if (perfil && perfil.ativo === false) {
         await sb.auth.signOut();
