@@ -266,6 +266,51 @@
     }
     .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
 
+    /* Alerta customizado */
+    .alerta-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 300;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .alerta-overlay.open { opacity: 1; pointer-events: all; }
+    .alerta-box {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 32px 28px;
+      max-width: 420px;
+      width: calc(100% - 32px);
+      text-align: center;
+      transform: translateY(16px);
+      transition: transform 0.2s;
+    }
+    .alerta-overlay.open .alerta-box { transform: translateY(0); }
+    .alerta-icone { font-size: 2.4rem; margin-bottom: 12px; }
+    .alerta-titulo {
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .alerta-titulo.erro { color: var(--red2); }
+    .alerta-titulo.aviso { color: var(--ember); }
+    .alerta-texto { font-size: 0.88rem; color: #ccc; line-height: 1.6; margin-bottom: 24px; }
+    .alerta-btn {
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      border: none; border-radius: 8px;
+      padding: 11px 28px; cursor: pointer;
+    }
+    .alerta-btn.aviso {
+      background: linear-gradient(135deg, #c45000, var(--ember));
+    }
+
+    /* Modal */
     .modal-overlay {
       position: fixed; inset: 0;
       background: rgba(0,0,0,0.75);
@@ -457,6 +502,17 @@
     </div>
   </main>
 
+  <!-- Alerta customizado -->
+  <div class="alerta-overlay" id="alerta-overlay">
+    <div class="alerta-box">
+      <div class="alerta-icone" id="alerta-icone"></div>
+      <div class="alerta-titulo" id="alerta-titulo"></div>
+      <div class="alerta-texto" id="alerta-texto"></div>
+      <button class="alerta-btn" id="alerta-btn">Entendido</button>
+    </div>
+  </div>
+
+  <!-- Modal de edição -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
       <div class="modal-header">
@@ -507,6 +563,19 @@
 
     const BUCKET = 'produtos-fotos';
     const produtosMap = new Map();
+
+    // ── Alerta customizado ──
+    function mostrarAlerta({ icone, tipo, titulo, texto }) {
+      document.getElementById('alerta-icone').textContent  = icone;
+      document.getElementById('alerta-titulo').textContent = titulo;
+      document.getElementById('alerta-titulo').className   = `alerta-titulo ${tipo}`;
+      document.getElementById('alerta-texto').textContent  = texto;
+      document.getElementById('alerta-btn').className      = `alerta-btn ${tipo}`;
+      document.getElementById('alerta-overlay').classList.add('open');
+    }
+    document.getElementById('alerta-btn').addEventListener('click', () => {
+      document.getElementById('alerta-overlay').classList.remove('open');
+    });
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
@@ -647,20 +716,46 @@
 
     async function excluirProduto(p) {
       if (!confirm(`Excluir o produto "${p.nome}"?`)) return;
+
+      // Tenta excluir do banco PRIMEIRO (antes de mexer no storage)
+      const { error } = await sb.from('produtos').delete().eq('id', p.id);
+
+      if (error) {
+        // Código 23503 = violação de chave estrangeira (produto vinculado a pedido)
+        if (error.code === '23503') {
+          mostrarAlerta({
+            icone: '⚠️',
+            tipo: 'aviso',
+            titulo: 'Exclusão não permitida',
+            texto: `O produto "${p.nome}" possui pedidos vinculados e não pode ser excluído. É permitido apenas editar suas informações.`
+          });
+        } else {
+          mostrarAlerta({
+            icone: '❌',
+            tipo: 'erro',
+            titulo: 'Erro ao excluir',
+            texto: 'Não foi possível excluir o produto. Tente novamente.'
+          });
+        }
+        return;
+      }
+
+      // Só remove a foto do storage após confirmar que o banco deletou com sucesso
       if (p.foto_url) {
         const path = p.foto_url.split(`${BUCKET}/`)[1];
         if (path) await sb.storage.from(BUCKET).remove([path]);
       }
-      const { error } = await sb.from('produtos').delete().eq('id', p.id);
-      if (error) { alert('Erro ao excluir produto.'); return; }
+
       document.getElementById(`card-${p.id}`)?.remove();
       produtosMap.delete(p.id);
+
       const grid = document.getElementById('produtos-grid');
       if (!grid.querySelector('.produto-card')) {
         grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto cadastrado ainda.</div></div>';
       }
     }
 
+    // Modal
     let editandoId = null;
     let editandoFotoAtual = null;
 
