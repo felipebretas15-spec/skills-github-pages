@@ -252,6 +252,20 @@
       display: flex; gap: 8px;
     }
 
+    .btn-editar {
+      flex: 1;
+      background: transparent;
+      border: 1px solid rgba(255,106,0,0.3);
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 8px; border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .btn-editar:hover { background: rgba(255,106,0,0.15); color: var(--ember); border-color: var(--ember); }
+
     .btn-excluir {
       flex: 1;
       background: transparent;
@@ -272,6 +286,117 @@
       color: var(--gray); font-size: 0.88rem;
     }
     .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Modal de edição ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--card);
+      border: 1px solid rgba(217,0,0,0.3);
+      border-radius: 16px;
+      padding: 36px;
+      width: 100%;
+      max-width: 520px;
+      margin: 16px;
+      transform: translateY(20px);
+      transition: transform 0.25s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .modal-title {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 3px; text-transform: uppercase;
+      color: var(--ember);
+    }
+    .modal-close {
+      background: transparent; border: none;
+      color: var(--gray); font-size: 1.4rem;
+      cursor: pointer; line-height: 1;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--white); }
+
+    .modal-form-grid {
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    .modal-upload-area {
+      border: 2px dashed rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.25s, background 0.25s;
+      position: relative;
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .modal-upload-area:hover { border-color: var(--ember); background: rgba(255,106,0,0.04); }
+    .modal-upload-area.has-preview { border-color: rgba(255,106,0,0.4); padding: 8px; }
+    .modal-upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0;
+      cursor: pointer; width: 100%; height: 100%;
+    }
+    .modal-upload-preview {
+      width: 100%; max-height: 120px;
+      object-fit: contain; border-radius: 6px;
+    }
+    .modal-upload-hint { font-size: 0.75rem; color: var(--gray); }
+
+    .modal-actions {
+      display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap;
+    }
+    .btn-atualizar {
+      flex: 1;
+      background: linear-gradient(135deg, #c45000, var(--ember));
+      color: var(--white);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      border: none; border-radius: 8px;
+      padding: 13px 20px; cursor: pointer;
+      box-shadow: 0 4px 16px rgba(255,106,0,0.3);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-atualizar:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,106,0,0.45); }
+    .btn-atualizar:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-cancelar {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--gray);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 1px; text-transform: uppercase;
+      padding: 13px 20px; border-radius: 8px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-cancelar:hover { border-color: var(--white); color: var(--white); }
+
+    .modal-msg {
+      margin-top: 12px; padding: 10px 16px;
+      border-radius: 6px; font-size: 0.82rem;
+      text-align: center; display: none;
+    }
+    .modal-msg.erro { background: rgba(217,0,0,0.12); border: 1px solid rgba(217,0,0,0.4); color: var(--ember); }
+    .modal-msg.ok   { background: rgba(0,180,0,0.1);  border: 1px solid rgba(0,180,0,0.3);  color: #4caf50; }
 
     /* ── Loading ── */
     #loading {
@@ -375,6 +500,46 @@
 
   </main>
 
+  <!-- Modal de edição -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <p class="modal-title">✏️ Editar Produto</p>
+        <button class="modal-close" id="modal-close" title="Fechar">✕</button>
+      </div>
+      <div class="modal-form-grid">
+        <div class="field">
+          <label for="edit-nome">Nome do Produto</label>
+          <input type="text" id="edit-nome" placeholder="Nome do produto" required />
+        </div>
+        <div class="field">
+          <label for="edit-preco">Preço</label>
+          <div class="preco-wrap">
+            <span>R$</span>
+            <input type="number" id="edit-preco" placeholder="0,00" min="0" step="0.01" required />
+          </div>
+        </div>
+        <div class="field">
+          <label>Foto do Produto</label>
+          <div class="modal-upload-area" id="edit-upload-area">
+            <input type="file" id="edit-foto" accept="image/*" />
+            <img class="modal-upload-preview" id="edit-upload-preview" alt="Preview" style="display:none;" />
+            <div id="edit-upload-placeholder">
+              <div class="upload-icon">🖼️</div>
+              <div class="modal-upload-hint">Clique para trocar a foto</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-atualizar" id="btn-atualizar">Salvar Alterações</button>
+        <button class="btn-cancelar" id="btn-cancelar">Cancelar</button>
+      </div>
+      <div class="modal-msg erro" id="modal-msg-erro"></div>
+      <div class="modal-msg ok"   id="modal-msg-ok"></div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="inatividade.js"></script>
   <script>
@@ -406,7 +571,7 @@
       carregarProdutos();
     }
 
-    // ── Preview de foto ──
+    // ── Preview de foto (cadastro) ──
     document.getElementById('foto').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -444,7 +609,6 @@
 
       let foto_url = null;
 
-      // Upload da foto se selecionada
       if (file) {
         const ext  = file.name.split('.').pop();
         const path = `${Date.now()}.${ext}`;
@@ -513,6 +677,9 @@
             <div class="produto-preco">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</div>
           </div>
           <div class="produto-acoes">
+            <button class="btn-editar" onclick="abrirEdicao('${p.id}', ${JSON.stringify(p.nome).replace(/'/g, "\\'")}, ${p.preco}, '${p.foto_url || ''}')">
+              ✏️ Editar
+            </button>
             <button class="btn-excluir" onclick="excluirProduto('${p.id}', '${p.foto_url || ''}', '${p.nome}')">
               🗑 Excluir
             </button>
@@ -525,7 +692,6 @@
     async function excluirProduto(id, fotoUrl, nome) {
       if (!confirm(`Excluir o produto "${nome}"?`)) return;
 
-      // Remove foto do storage se existir
       if (fotoUrl) {
         const path = fotoUrl.split(`${BUCKET}/`)[1];
         if (path) await sb.storage.from(BUCKET).remove([path]);
@@ -541,6 +707,138 @@
         grid.innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>Nenhum produto cadastrado ainda.</div></div>';
       }
     }
+
+    // ── Modal de edição ──
+    let editandoId = null;
+    let editandoFotoAtual = null;
+
+    function abrirEdicao(id, nome, preco, fotoUrl) {
+      editandoId = id;
+      editandoFotoAtual = fotoUrl || null;
+
+      document.getElementById('edit-nome').value = nome;
+      document.getElementById('edit-preco').value = preco;
+      document.getElementById('edit-foto').value = '';
+
+      const preview = document.getElementById('edit-upload-preview');
+      const placeholder = document.getElementById('edit-upload-placeholder');
+      const uploadArea = document.getElementById('edit-upload-area');
+
+      if (fotoUrl) {
+        preview.src = fotoUrl;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        uploadArea.classList.add('has-preview');
+      } else {
+        preview.src = '';
+        preview.style.display = 'none';
+        placeholder.style.display = '';
+        uploadArea.classList.remove('has-preview');
+      }
+
+      document.getElementById('modal-msg-erro').style.display = 'none';
+      document.getElementById('modal-msg-ok').style.display = 'none';
+      document.getElementById('btn-atualizar').disabled = false;
+      document.getElementById('btn-atualizar').textContent = 'Salvar Alterações';
+
+      document.getElementById('modal-overlay').classList.add('open');
+    }
+
+    function fecharModal() {
+      document.getElementById('modal-overlay').classList.remove('open');
+      editandoId = null;
+      editandoFotoAtual = null;
+    }
+
+    document.getElementById('modal-close').addEventListener('click', fecharModal);
+    document.getElementById('btn-cancelar').addEventListener('click', fecharModal);
+    document.getElementById('modal-overlay').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal-overlay')) fecharModal();
+    });
+
+    // Preview de foto no modal
+    document.getElementById('edit-foto').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = document.getElementById('edit-upload-preview');
+        const placeholder = document.getElementById('edit-upload-placeholder');
+        const uploadArea = document.getElementById('edit-upload-area');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+        placeholder.style.display = 'none';
+        uploadArea.classList.add('has-preview');
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Salvar edição
+    document.getElementById('btn-atualizar').addEventListener('click', async () => {
+      if (!editandoId) return;
+
+      const btn = document.getElementById('btn-atualizar');
+      btn.disabled = true;
+      btn.textContent = 'Salvando...';
+      document.getElementById('modal-msg-erro').style.display = 'none';
+      document.getElementById('modal-msg-ok').style.display = 'none';
+
+      const nome  = document.getElementById('edit-nome').value.trim();
+      const preco = parseFloat(document.getElementById('edit-preco').value);
+      const file  = document.getElementById('edit-foto').files[0];
+
+      if (!nome || isNaN(preco)) {
+        document.getElementById('modal-msg-erro').textContent = 'Preencha nome e preço corretamente.';
+        document.getElementById('modal-msg-erro').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Salvar Alterações';
+        return;
+      }
+
+      let foto_url = editandoFotoAtual;
+
+      if (file) {
+        // Remove foto antiga se existir
+        if (editandoFotoAtual) {
+          const oldPath = editandoFotoAtual.split(`${BUCKET}/`)[1];
+          if (oldPath) await sb.storage.from(BUCKET).remove([oldPath]);
+        }
+
+        const ext  = file.name.split('.').pop();
+        const path = `${Date.now()}.${ext}`;
+        const { data: up, error: upErr } = await sb.storage
+          .from(BUCKET).upload(path, file, { upsert: false });
+
+        if (upErr) {
+          document.getElementById('modal-msg-erro').textContent = 'Erro ao fazer upload da foto.';
+          document.getElementById('modal-msg-erro').style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Salvar Alterações';
+          return;
+        }
+
+        const { data: { publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(up.path);
+        foto_url = publicUrl;
+      }
+
+      const { error } = await sb.from('produtos')
+        .update({ nome, preco, foto_url })
+        .eq('id', editandoId);
+
+      if (error) {
+        document.getElementById('modal-msg-erro').textContent = 'Erro ao atualizar produto. Tente novamente.';
+        document.getElementById('modal-msg-erro').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Salvar Alterações';
+        return;
+      }
+
+      document.getElementById('modal-msg-ok').textContent = `Produto "${nome}" atualizado com sucesso!`;
+      document.getElementById('modal-msg-ok').style.display = 'block';
+      btn.textContent = 'Salvo!';
+
+      setTimeout(() => {
+        fecharModal();
+        carregarProdutos();
+      }, 1000);
+    });
 
     function showErro(txt) {
       const el = document.getElementById('msg-erro');
