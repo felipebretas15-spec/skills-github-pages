@@ -595,9 +595,14 @@
         const name = document.getElementById('custName').value.trim();
         const phone = document.getElementById('custPhone').value.trim();
         if (!name || !phone) { showToast('⚠️ Preencha nome e telefone!'); return; }
+
+        let regionName = '', address = '';
         if (deliveryMode === 'entrega') {
             if (!document.getElementById('regionSelect').value) { showToast('⚠️ Selecione a região!'); return; }
             if (!document.getElementById('custAddress').value.trim()) { showToast('⚠️ Digite o endereço!'); return; }
+            const opt = document.getElementById('regionSelect');
+            regionName = opt.options[opt.selectedIndex].text.split(' —')[0];
+            address = document.getElementById('custAddress').value.trim();
         }
 
         const subtotal = getSubtotal();
@@ -605,15 +610,38 @@
         const obs = document.getElementById('custObs').value.trim();
         const change = document.getElementById('changeAmount').value;
 
-        let msg = `🍗 *NOVO PEDIDO — Assados Mairinque*\n\n`;
+        // Salvar pedido no localStorage
+        const counter = parseInt(localStorage.getItem('am_order_counter') || '0') + 1;
+        localStorage.setItem('am_order_counter', counter);
+        const newOrder = {
+            id: Date.now(),
+            num: String(counter).padStart(4, '0'),
+            status: 1,
+            createdAt: new Date().toISOString(),
+            customer: { name, phone },
+            type: deliveryMode,
+            region: deliveryMode === 'entrega' ? { name: regionName, fee: deliveryFee } : null,
+            address: address || null,
+            items: cart.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
+            subtotal,
+            deliveryFee,
+            total,
+            payment: selectedPayment,
+            change: change || null,
+            obs
+        };
+        const orders = JSON.parse(localStorage.getItem('am_orders') || '[]');
+        orders.unshift(newOrder);
+        localStorage.setItem('am_orders', JSON.stringify(orders));
+
+        // Montar mensagem WhatsApp para o estabelecimento
+        let msg = `🍗 *NOVO PEDIDO #${newOrder.num} — Assados Mairinque*\n\n`;
         msg += `👤 *Cliente:* ${name}\n`;
         msg += `📞 *Telefone:* ${phone}\n`;
         msg += `📦 *Tipo:* ${deliveryMode === 'retirada' ? '🏪 Retirada no local' : '🚚 Entrega'}\n`;
         if (deliveryMode === 'entrega') {
-            const opt = document.getElementById('regionSelect');
-            const regionName = opt.options[opt.selectedIndex].text.split(' —')[0];
             msg += `📍 *Região:* ${regionName}\n`;
-            msg += `🏠 *Endereço:* ${document.getElementById('custAddress').value.trim()}\n`;
+            msg += `🏠 *Endereço:* ${address}\n`;
         }
         msg += `\n🛒 *Itens:*\n`;
         cart.forEach(i => { msg += `• ${i.qty}x ${i.name} — ${fmt(i.price * i.qty)}\n`; });
