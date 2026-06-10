@@ -302,8 +302,8 @@
             ASSADOS<br><span>MAIRINQUE — Admin</span>
         </div>
         <nav class="sidebar-nav">
-            <div class="nav-item" id="nav-pedidos" onclick="showTab('pedidos',this)">🧾 Pedidos <span class="nav-badge" id="navBadge" style="display:none">0</span></div>
-            <div class="nav-item active" id="nav-produtos" onclick="showTab('produtos',this)">📦 Produtos</div>
+            <div class="nav-item active" id="nav-pedidos" onclick="showTab('pedidos',this)">🧾 Pedidos <span class="nav-badge" id="navBadge" style="display:none">0</span></div>
+            <div class="nav-item" id="nav-produtos" onclick="showTab('produtos',this)">📦 Produtos</div>
             <div class="nav-item" id="nav-regioes" onclick="showTab('regioes',this)">📍 Regiões de Entrega</div>
             <div class="nav-item" id="nav-configuracoes" onclick="showTab('configuracoes',this)">⚙️ Configurações</div>
         </nav>
@@ -315,17 +315,17 @@
 
     <div class="main-content">
         <div class="main-header">
-            <span id="mainHeader">Produtos</span>
+            <span id="mainHeader">Gerenciamento de Pedidos</span>
         </div>
 
         <!-- PEDIDOS -->
-        <div class="tab-content" id="tab-pedidos">
+        <div class="tab-content active" id="tab-pedidos">
             <div class="order-filters" id="orderFilters"></div>
             <div class="orders-list" id="ordersList"></div>
         </div>
 
         <!-- PRODUTOS -->
-        <div class="tab-content active" id="tab-produtos">
+        <div class="tab-content" id="tab-produtos">
             <div class="card">
                 <div class="card-header">
                     <h3>Cardápio de Produtos</h3>
@@ -929,10 +929,10 @@
     }
 
     function renderAll() {
+        renderOrders();
         renderProducts();
         renderRegions();
         loadSettings();
-        updateOrderBadge();
     }
 </script>
 </body>
