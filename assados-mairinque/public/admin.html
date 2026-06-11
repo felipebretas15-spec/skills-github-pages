@@ -284,11 +284,11 @@
     };
 
     const WPP_MSGS = {
-        2: o => `✅ Olá *${o.customer_name}*! Seu pedido *#${pad(o.id)}* foi *confirmado*! Já estamos preparando. 🍗`,
-        3: o => `❌ Olá *${o.customer_name}*, seu pedido *#${pad(o.id)}* foi *cancelado*. Entre em contato para mais informações.`,
-        4: o => `🛵 Olá *${o.customer_name}*! Seu pedido *#${pad(o.id)}* já está *a caminho*! Em breve na sua porta. 🍗`,
-        5: o => `🏪 Olá *${o.customer_name}*! Seu pedido *#${pad(o.id)}* está *pronto para retirada*! Pode vir buscar. 🍗`,
-        6: o => `🎉 Olá *${o.customer_name}*! Seu pedido *#${pad(o.id)}* foi *${o.type === 'entrega' ? 'entregue' : 'retirado'}*! Obrigado pela preferência! ❤️🍗`,
+        2: o => `✅ Olá *${o.nome_cliente}*! Seu pedido *#${pad(o.id_pedido)}* foi *confirmado*! Já estamos preparando. 🍗`,
+        3: o => `❌ Olá *${o.nome_cliente}*, seu pedido *#${pad(o.id_pedido)}* foi *cancelado*. Entre em contato para mais informações.`,
+        4: o => `🛵 Olá *${o.nome_cliente}*! Seu pedido *#${pad(o.id_pedido)}* já está *a caminho*! Em breve na sua porta. 🍗`,
+        5: o => `🏪 Olá *${o.nome_cliente}*! Seu pedido *#${pad(o.id_pedido)}* está *pronto para retirada*! Pode vir buscar. 🍗`,
+        6: o => `🎉 Olá *${o.nome_cliente}*! Seu pedido *#${pad(o.id_pedido)}* foi *${o.tipo_pedido === 'entrega' ? 'entregue' : 'retirado'}*! Obrigado pela preferência! ❤️🍗`,
     };
 
     function pad(id) { return String(id).padStart(4, '0'); }
@@ -304,7 +304,7 @@
         const btn = document.getElementById('loginBtn');
         btn.disabled = true; btn.textContent = 'Entrando...';
         try {
-            const r = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pass }) });
+            const r = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ senha: pass }) });
             if (r.ok) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminLayout').classList.add('visible');
@@ -355,7 +355,7 @@
             const rows = await fetch('/api/orders').then(r => r.json());
             cachedOrders = rows;
             renderOrders();
-            const pending = rows.filter(o => o.status === 1).length;
+            const pending = rows.filter(o => o.status_pedido === 1).length;
             const badge = document.getElementById('navBadge');
             badge.textContent = pending;
             badge.style.display = pending > 0 ? 'inline' : 'none';
@@ -367,7 +367,7 @@
     function renderOrders() {
         const orders = cachedOrders;
         const counts = { all: orders.length };
-        Object.keys(STATUS_INFO).forEach(s => { counts[s] = orders.filter(o => o.status == s).length; });
+        Object.keys(STATUS_INFO).forEach(s => { counts[s] = orders.filter(o => o.status_pedido == s).length; });
 
         const filterDefs = [
             { key: 'all', label: 'Todos' },
@@ -384,7 +384,7 @@
             </div>`
         ).join('');
 
-        const filtered = currentOrderFilter === 'all' ? orders : orders.filter(o => o.status == currentOrderFilter);
+        const filtered = currentOrderFilter === 'all' ? orders : orders.filter(o => o.status_pedido == currentOrderFilter);
         const listEl = document.getElementById('ordersList');
         if (!filtered.length) {
             listEl.innerHTML = `<div class="no-orders"><div class="icon">📋</div><p>${orders.length === 0 ? 'Nenhum pedido recebido ainda.' : 'Nenhum pedido neste filtro.'}</p></div>`;
@@ -392,24 +392,24 @@
         }
 
         listEl.innerHTML = filtered.map(o => {
-            const si = STATUS_INFO[o.status];
-            const items = Array.isArray(o.items) ? o.items : JSON.parse(o.items || '[]');
+            const si = STATUS_INFO[o.status_pedido];
+            const items = Array.isArray(o.itens_pedido) ? o.itens_pedido : JSON.parse(o.itens_pedido || '[]');
             const itemsText = items.map(i => `${i.qty}x ${i.name}`).join(', ');
-            return `<div class="order-card s${o.status}">
+            return `<div class="order-card s${o.status_pedido}">
                 <div class="order-card-header">
-                    <div><span class="order-num">Pedido #${pad(o.id)}</span><span class="order-time" style="margin-left:10px">${fmtDate(o.created_at)}</span></div>
+                    <div><span class="order-num">Pedido #${pad(o.id_pedido)}</span><span class="order-time" style="margin-left:10px">${fmtDate(o.criado_em)}</span></div>
                     <span class="status-badge ${si.cls}">${si.emoji} ${si.label}</span>
                 </div>
                 <div class="order-card-body">
-                    <div class="order-info-block"><label>Cliente</label><p>${o.customer_name}</p><p style="color:var(--text-muted);font-size:12px;margin-top:2px">📞 ${o.customer_phone}</p></div>
-                    <div class="order-info-block"><label>Tipo</label><p>${o.type === 'entrega' ? '🚚 Entrega' : '🏪 Retirada'}</p>
-                        ${o.region_name ? `<p style="color:var(--text-muted);font-size:12px;margin-top:2px">📍 ${o.region_name}</p>` : ''}
-                        ${o.address ? `<p style="color:var(--text-muted);font-size:12px;margin-top:2px">🏠 ${o.address}</p>` : ''}
+                    <div class="order-info-block"><label>Cliente</label><p>${o.nome_cliente}</p><p style="color:var(--text-muted);font-size:12px;margin-top:2px">📞 ${o.telefone_cliente}</p></div>
+                    <div class="order-info-block"><label>Tipo</label><p>${o.tipo_pedido === 'entrega' ? '🚚 Entrega' : '🏪 Retirada'}</p>
+                        ${o.nome_regiao ? `<p style="color:var(--text-muted);font-size:12px;margin-top:2px">📍 ${o.nome_regiao}</p>` : ''}
+                        ${o.endereco_cliente ? `<p style="color:var(--text-muted);font-size:12px;margin-top:2px">🏠 ${o.endereco_cliente}</p>` : ''}
                     </div>
-                    <div class="order-info-block"><label>Pagamento</label><p>${o.payment}${o.change_amount ? ` — troco p/ ${fmt(o.change_amount)}` : ''}</p></div>
-                    <div class="order-info-block"><label>Frete</label><p>${parseFloat(o.delivery_fee||0) > 0 ? fmt(o.delivery_fee) : 'Grátis / Retirada'}</p></div>
+                    <div class="order-info-block"><label>Pagamento</label><p>${o.pagamento}${o.troco ? ` — troco p/ ${fmt(o.troco)}` : ''}</p></div>
+                    <div class="order-info-block"><label>Frete</label><p>${parseFloat(o.frete||0) > 0 ? fmt(o.frete) : 'Grátis / Retirada'}</p></div>
                     <div class="order-items-block"><label>Itens</label><div class="order-items-list">${itemsText}</div></div>
-                    ${o.obs ? `<div class="order-items-block"><label>Observação</label><p style="font-style:italic;color:var(--text-muted);font-size:13px">${o.obs}</p></div>` : ''}
+                    ${o.observacao ? `<div class="order-items-block"><label>Observação</label><p style="font-style:italic;color:var(--text-muted);font-size:13px">${o.observacao}</p></div>` : ''}
                 </div>
                 <div class="order-card-footer">
                     <div class="order-total-badge">Total: ${fmt(o.total)}</div>
@@ -420,21 +420,21 @@
     }
 
     function buildActions(o) {
-        if (o.status === 3 || o.status === 6) return '<span style="font-size:13px;color:var(--text-muted)">Finalizado</span>';
+        if (o.status_pedido === 3 || o.status_pedido === 6) return '<span style="font-size:13px;color:var(--text-muted)">Finalizado</span>';
         let btns = '';
-        if (o.status === 1) {
-            btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id},2)">✅ Confirmar</button>`;
-            btns += `<button class="btn btn-danger btn-sm" onclick="changeStatus(${o.id},3)">❌ Cancelar</button>`;
+        if (o.status_pedido === 1) {
+            btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id_pedido},2)">✅ Confirmar</button>`;
+            btns += `<button class="btn btn-danger btn-sm" onclick="changeStatus(${o.id_pedido},3)">❌ Cancelar</button>`;
         }
-        if (o.status === 2) {
-            btns += o.type === 'entrega'
-                ? `<button class="btn btn-purple btn-sm" onclick="changeStatus(${o.id},4)">🛵 Saiu p/ Entrega</button>`
-                : `<button class="btn btn-teal btn-sm" onclick="changeStatus(${o.id},5)">🏪 Pronto p/ Retirada</button>`;
-            btns += `<button class="btn btn-danger btn-sm" onclick="changeStatus(${o.id},3)">❌ Cancelar</button>`;
+        if (o.status_pedido === 2) {
+            btns += o.tipo_pedido === 'entrega'
+                ? `<button class="btn btn-purple btn-sm" onclick="changeStatus(${o.id_pedido},4)">🛵 Saiu p/ Entrega</button>`
+                : `<button class="btn btn-teal btn-sm" onclick="changeStatus(${o.id_pedido},5)">🏪 Pronto p/ Retirada</button>`;
+            btns += `<button class="btn btn-danger btn-sm" onclick="changeStatus(${o.id_pedido},3)">❌ Cancelar</button>`;
         }
-        if (o.status === 4) btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id},6)">🎉 Marcar Entregue</button>`;
-        if (o.status === 5) btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id},6)">🎉 Marcar Retirado</button>`;
-        btns += `<button class="btn btn-outline btn-sm" onclick="openWpp(${o.id})" title="WhatsApp cliente">
+        if (o.status_pedido === 4) btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id_pedido},6)">🎉 Marcar Entregue</button>`;
+        if (o.status_pedido === 5) btns += `<button class="btn btn-success btn-sm" onclick="changeStatus(${o.id_pedido},6)">🎉 Marcar Retirado</button>`;
+        btns += `<button class="btn btn-outline btn-sm" onclick="openWpp(${o.id_pedido})" title="WhatsApp cliente">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#25D366" style="vertical-align:middle;margin-right:3px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.561 4.14 1.535 5.873L0 24l6.31-1.507A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>WA</button>`;
         return btns;
     }
@@ -442,23 +442,23 @@
     function setOrderFilter(key) { currentOrderFilter = key; renderOrders(); }
 
     function changeStatus(orderId, newStatus) {
-        const order = cachedOrders.find(o => o.id == orderId);
+        const order = cachedOrders.find(o => o.id_pedido == orderId);
         if (!order) return;
         const si = STATUS_INFO[newStatus];
         pendingAction = async () => {
             try {
-                const r = await fetch(`/api/orders/${orderId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: newStatus }) });
+                const r = await fetch(`/api/orders/${orderId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status_pedido: newStatus }) });
                 const updated = await r.json();
-                const idx = cachedOrders.findIndex(o => o.id == orderId);
+                const idx = cachedOrders.findIndex(o => o.id_pedido == orderId);
                 if (idx >= 0) cachedOrders[idx] = updated;
                 renderOrders();
                 const msg = WPP_MSGS[newStatus]?.(order);
                 if (msg) {
-                    const phone = order.customer_phone.replace(/\D/g, '');
+                    const phone = order.telefone_cliente.replace(/\D/g, '');
                     window.open(`https://wa.me/55${phone}?text=${encodeURIComponent(msg)}`, '_blank');
                 }
                 showToast(`✓ Status: ${si.label}`, true);
-                const pending = cachedOrders.filter(o => o.status === 1).length;
+                const pending = cachedOrders.filter(o => o.status_pedido === 1).length;
                 const badge = document.getElementById('navBadge');
                 badge.textContent = pending;
                 badge.style.display = pending > 0 ? 'inline' : 'none';
@@ -466,12 +466,12 @@
         };
         const labels = { 2:'Confirmar pedido', 3:'Cancelar pedido', 4:'Marcar como saiu p/ entrega', 5:'Marcar como pronto p/ retirada', 6:'Marcar como entregue/retirado' };
         showConfirm(labels[newStatus] || 'Alterar status',
-            `Pedido <strong>#${pad(order.id)}</strong> de <strong>${order.customer_name}</strong> será atualizado para "${si.emoji} ${si.label}". Uma mensagem será enviada ao cliente via WhatsApp.`);
+            `Pedido <strong>#${pad(order.id_pedido)}</strong> de <strong>${order.nome_cliente}</strong> será atualizado para "${si.emoji} ${si.label}". Uma mensagem será enviada ao cliente via WhatsApp.`);
     }
 
     function openWpp(orderId) {
-        const o = cachedOrders.find(o => o.id == orderId);
-        if (o) window.open(`https://wa.me/55${o.customer_phone.replace(/\D/g,'')}`, '_blank');
+        const o = cachedOrders.find(o => o.id_pedido == orderId);
+        if (o) window.open(`https://wa.me/55${o.telefone_cliente.replace(/\D/g,'')}`, '_blank');
     }
 
     function showConfirm(title, msg) {
@@ -494,13 +494,13 @@
         const tbody = document.getElementById('productsTable');
         if (!products.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty-table">Nenhum produto. Clique em "+ Novo Produto".</td></tr>'; return; }
         tbody.innerHTML = products.map(p => `<tr>
-            <td>${p.image ? `<img class="product-thumb" src="${p.image}" alt="${p.name}">` : `<div class="product-thumb-placeholder">🍗</div>`}</td>
-            <td><strong>${p.name}</strong></td>
-            <td style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.description || '—'}</td>
-            <td><strong style="color:var(--primary)">${fmt(p.price)}</strong></td>
+            <td>${p.imagem ? `<img class="product-thumb" src="${p.imagem}" alt="${p.nome_produto}">` : `<div class="product-thumb-placeholder">🍗</div>`}</td>
+            <td><strong>${p.nome_produto}</strong></td>
+            <td style="color:var(--text-muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.descricao || '—'}</td>
+            <td><strong style="color:var(--primary)">${fmt(p.preco)}</strong></td>
             <td style="white-space:nowrap">
                 <button class="btn btn-outline" style="margin-right:6px" onclick='editProduct(${JSON.stringify(p)})'>Editar</button>
-                <button class="btn btn-danger" onclick="deleteProduct(${p.id})">Excluir</button>
+                <button class="btn btn-danger" onclick="deleteProduct(${p.id_produto})">Excluir</button>
             </td>
         </tr>`).join('');
     }
@@ -518,14 +518,14 @@
     }
 
     function editProduct(p) {
-        document.getElementById('productId').value = p.id;
-        document.getElementById('pName').value = p.name;
-        document.getElementById('pDesc').value = p.description || '';
-        document.getElementById('pPrice').value = p.price;
-        document.getElementById('pImageData').value = p.image || '';
+        document.getElementById('productId').value = p.id_produto;
+        document.getElementById('pName').value = p.nome_produto;
+        document.getElementById('pDesc').value = p.descricao || '';
+        document.getElementById('pPrice').value = p.preco;
+        document.getElementById('pImageData').value = p.imagem || '';
         document.getElementById('pImageFile').value = '';
         const preview = document.getElementById('pImagePreview');
-        if (p.image) { preview.src = p.image; preview.style.display = 'block'; } else preview.style.display = 'none';
+        if (p.imagem) { preview.src = p.imagem; preview.style.display = 'block'; } else preview.style.display = 'none';
         document.getElementById('productFormTitle').textContent = 'Editar Produto';
         document.getElementById('productFormOverlay').classList.add('open');
     }
@@ -552,7 +552,7 @@
         const btn = document.getElementById('saveProductBtn');
         btn.disabled = true; btn.textContent = 'Salvando...';
         const id = document.getElementById('productId').value;
-        const body = { name, description: document.getElementById('pDesc').value.trim(), price: parseFloat(price), image: document.getElementById('pImageData').value };
+        const body = { nome_produto: name, descricao: document.getElementById('pDesc').value.trim(), preco: parseFloat(price), imagem: document.getElementById('pImageData').value };
         try {
             const url = id ? `/api/products/${id}` : '/api/products';
             const method = id ? 'PUT' : 'POST';
@@ -583,11 +583,11 @@
         const tbody = document.getElementById('regionsTable');
         if (!regions.length) { tbody.innerHTML = '<tr><td colspan="3" class="empty-table">Nenhuma região. Clique em "+ Nova Região".</td></tr>'; return; }
         tbody.innerHTML = regions.map(r => `<tr>
-            <td><strong>${r.name}</strong></td>
-            <td><strong style="color:var(--primary)">${fmt(r.fee)}</strong>${parseFloat(r.fee)===0?' <span style="color:var(--success);font-size:12px">Grátis</span>':''}</td>
+            <td><strong>${r.nome_regiao}</strong></td>
+            <td><strong style="color:var(--primary)">${fmt(r.taxa_entrega)}</strong>${parseFloat(r.taxa_entrega)===0?' <span style="color:var(--success);font-size:12px">Grátis</span>':''}</td>
             <td style="white-space:nowrap">
                 <button class="btn btn-outline" style="margin-right:6px" onclick='editRegion(${JSON.stringify(r)})'>Editar</button>
-                <button class="btn btn-danger" onclick="deleteRegion(${r.id})">Excluir</button>
+                <button class="btn btn-danger" onclick="deleteRegion(${r.id_regiao})">Excluir</button>
             </td>
         </tr>`).join('');
     }
@@ -601,9 +601,9 @@
     }
 
     function editRegion(r) {
-        document.getElementById('regionId').value = r.id;
-        document.getElementById('rName').value = r.name;
-        document.getElementById('rFee').value = r.fee;
+        document.getElementById('regionId').value = r.id_regiao;
+        document.getElementById('rName').value = r.nome_regiao;
+        document.getElementById('rFee').value = r.taxa_entrega;
         document.getElementById('regionFormTitle').textContent = 'Editar Região';
         document.getElementById('regionFormOverlay').classList.add('open');
     }
@@ -620,7 +620,7 @@
         try {
             const url = id ? `/api/regions/${id}` : '/api/regions';
             const method = id ? 'PUT' : 'POST';
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, fee: parseFloat(fee) }) });
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nome_regiao: name, taxa_entrega: parseFloat(fee) }) });
             await loadRegions();
             closeRegionForm();
             showToast('✓ Região salva!', true);
@@ -656,7 +656,7 @@
             map_embed: document.getElementById('cfg_map').value.trim(),
         };
         const newPass = document.getElementById('cfg_password').value;
-        if (newPass) { updates.admin_password = newPass; document.getElementById('cfg_password').value = ''; }
+        if (newPass) { updates.senha_admin = newPass; document.getElementById('cfg_password').value = ''; }
         try {
             await fetch('/api/settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(updates) });
             showToast('✓ Configurações salvas!', true);

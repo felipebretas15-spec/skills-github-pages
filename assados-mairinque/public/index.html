@@ -317,13 +317,13 @@
         }
         grid.innerHTML = products.map(p => `
             <div class="product-card">
-                ${p.image ? `<img class="product-img" src="${p.image}" alt="${p.name}">` : `<div class="product-img-placeholder">🍗</div>`}
+                ${p.imagem ? `<img class="product-img" src="${p.imagem}" alt="${p.nome_produto}">` : `<div class="product-img-placeholder">🍗</div>`}
                 <div class="product-info">
-                    <div class="product-name">${p.name}</div>
-                    <div class="product-desc">${p.description || ''}</div>
+                    <div class="product-name">${p.nome_produto}</div>
+                    <div class="product-desc">${p.descricao || ''}</div>
                     <div class="product-footer">
-                        <div class="product-price">${fmt(p.price)}</div>
-                        <button class="add-btn" onclick="addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.image||''}')">+ Adicionar</button>
+                        <div class="product-price">${fmt(p.preco)}</div>
+                        <button class="add-btn" onclick="addToCart(${p.id_produto},'${p.nome_produto.replace(/'/g,"\\'")}',${p.preco},'${p.imagem||''}')">+ Adicionar</button>
                     </div>
                 </div>
             </div>
@@ -392,7 +392,7 @@
         toggleCart();
         const sel = document.getElementById('regionSelect');
         sel.innerHTML = '<option value="">Selecione...</option>';
-        regions.forEach(r => { sel.innerHTML += `<option value="${r.fee}" data-name="${r.name}">${r.name} — ${fmt(r.fee)}</option>`; });
+        regions.forEach(r => { sel.innerHTML += `<option value="${r.taxa_entrega}" data-name="${r.nome_regiao}">${r.nome_regiao} — ${fmt(r.taxa_entrega)}</option>`; });
         updateCheckoutSummary();
         document.getElementById('checkoutOverlay').classList.add('open');
     }
@@ -456,16 +456,16 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: deliveryMode, customer_name: name, customer_phone: phone,
-                    address: address || null, region_name: regionName || null,
-                    region_fee: deliveryFee,
-                    items: cart.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price })),
-                    subtotal, delivery_fee: deliveryFee, total, payment: selectedPayment,
-                    change_amount: change ? parseFloat(change) : null, obs: obs || null
+                    tipo_pedido: deliveryMode, nome_cliente: name, telefone_cliente: phone,
+                    endereco_cliente: address || null, nome_regiao: regionName || null,
+                    taxa_regiao: deliveryFee,
+                    itens_pedido: cart.map(i => ({ id: i.id, nome: i.name, qty: i.qty, preco: i.price })),
+                    subtotal, frete: deliveryFee, total, pagamento: selectedPayment,
+                    troco: change ? parseFloat(change) : null, observacao: obs || null
                 })
             });
             const order = await resp.json();
-            const num = String(order.id).padStart(4, '0');
+            const num = String(order.id_pedido).padStart(4, '0');
 
             let msg = `🍗 *NOVO PEDIDO #${num} — Assados Mairinque*\n\n`;
             msg += `👤 *Cliente:* ${name}\n📞 *Telefone:* ${phone}\n`;
@@ -478,6 +478,7 @@
             msg += `✅ *Total: ${fmt(total)}*\n\n💳 *Pagamento:* ${selectedPayment}`;
             if (selectedPayment === 'Dinheiro' && change) msg += ` (troco para ${fmt(change)})`;
             if (obs) msg += `\n\n📝 *Obs:* ${obs}`;
+            msg += `\n\n_Pedido registrado automaticamente no sistema._`;
 
             const wpp = (settings.whatsapp || '').replace(/\D/g,'');
             window.open(`https://wa.me/${wpp ? '55'+wpp : ''}?text=${encodeURIComponent(msg)}`, '_blank');
