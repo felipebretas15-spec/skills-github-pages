@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBShop — Admin</title>
+<style>
+  :root {
+    --primary: #b44fff;
+    --primary-dark: #8a2be2;
+    --bg: #0d0d0d;
+    --bg2: #111;
+    --bg3: #1a1a1a;
+    --border: #b44fff33;
+    --text: #e0e0e0;
+    --text-muted: #888;
+    --success: #4caf50;
+    --danger: #f44336;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  header { background: var(--bg2); border-bottom: 2px solid var(--primary); padding: 0 30px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo { color: var(--primary); font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; }
+  .logo span { color: #fff; }
+  .header-right { display: flex; gap: 12px; align-items: center; }
+  .badge { background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+  .btn-store { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+  .btn-store:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 60px); }
+
+  /* FORM PANEL */
+  .form-panel { background: var(--bg2); border-right: 1px solid var(--border); padding: 24px; overflow-y: auto; }
+  .form-panel h2 { font-size: 1rem; color: #fff; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 16px; }
+  label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  input, select, textarea {
+    width: 100%; background: var(--bg3); border: 1px solid #333; color: #fff;
+    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border 0.2s;
+    font-family: inherit;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--primary); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: var(--bg3); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .img-preview { width: 100%; height: 140px; background: var(--bg3); border: 1px dashed #333; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 3rem; margin-bottom: 8px; overflow: hidden; }
+  .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .btn-submit { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 4px; }
+  .btn-submit:hover { background: var(--primary-dark); }
+  .btn-cancel { background: none; border: 1px solid #333; color: var(--text-muted); padding: 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 8px; transition: all 0.2s; }
+  .btn-cancel:hover { border-color: var(--danger); color: var(--danger); }
+
+  /* MAIN PANEL */
+  .main-panel { padding: 24px; overflow-y: auto; }
+  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .toolbar h2 { font-size: 1rem; color: #fff; }
+  .toolbar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .search-input { background: var(--bg3); border: 1px solid #333; color: #fff; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; outline: none; width: 200px; }
+  .search-input:focus { border-color: var(--primary); }
+  .filter-select { background: var(--bg3); border: 1px solid #333; color: var(--text-muted); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; outline: none; }
+  .btn-setup { background: var(--bg3); border: 1px solid var(--border); color: var(--primary); padding: 8px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+  .btn-setup:hover { background: var(--border); }
+
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
+  .stat-card .stat-icon { font-size: 1.6rem; margin-bottom: 4px; }
+  .stat-card .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
+  .stat-card .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+
+  /* TABLE */
+  .table-wrapper { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead { background: var(--bg3); }
+  th { padding: 12px 14px; text-align: left; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+  td { padding: 12px 14px; font-size: 0.85rem; border-top: 1px solid #1e1e1e; vertical-align: middle; }
+  tr:hover td { background: #ffffff05; }
+  .td-img { width: 44px; height: 44px; background: var(--bg3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; overflow: hidden; flex-shrink: 0; }
+  .td-img img { width: 100%; height: 100%; object-fit: cover; }
+  .td-name { font-weight: 600; color: #fff; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .td-price { color: var(--primary); font-weight: 700; white-space: nowrap; }
+  .td-cat { font-size: 0.75rem; color: var(--text-muted); }
+  .cond-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .cond-novo { background: #0d4d2a; color: #4caf50; }
+  .cond-usado { background: #4d3a0d; color: #ff9800; }
+  .actions { display: flex; gap: 6px; }
+  .btn-edit { background: var(--border); color: var(--primary); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+  .btn-edit:hover { background: var(--primary); color: #fff; }
+  .btn-delete { background: #ff433422; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
+  .btn-delete:hover { background: var(--danger); color: #fff; }
+  .featured-toggle { cursor: pointer; font-size: 1.1rem; }
+  .empty-table { text-align: center; padding: 50px; color: var(--text-muted); }
+
+  /* MODAL CONFIRM */
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: #000b; z-index: 200; align-items: center; justify-content: center; }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 360px; width: 90%; text-align: center; }
+  .confirm-box h3 { color: #fff; margin-bottom: 10px; }
+  .confirm-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+  .confirm-btns { display: flex; gap: 10px; }
+  .confirm-btns button { flex: 1; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  .btn-confirm-del { background: var(--danger); color: #fff; border: none; }
+  .btn-confirm-cancel { background: none; border: 1px solid #333; color: var(--text-muted); }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; opacity: 0; transition: all 0.3s; z-index: 999; transform: translateY(20px); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: var(--danger); }
+  .toast.success { background: #2e7d32; }
+
+  /* LOADING */
+  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff4; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⚡BB<span>SHOP</span> <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;letter-spacing:0">Admin</span></div>
+  <div class="header-right">
+    <span class="badge" id="totalBadge">0 produtos</span>
+    <button class="btn-store" onclick="window.open('index.html','_blank')">🛍️ Ver Loja</button>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- FORM PANEL -->
+  <div class="form-panel">
+    <h2 id="formTitle">➕ Novo Produto</h2>
+    <input type="hidden" id="editId">
+
+    <div class="form-group">
+      <label>📷 Imagem (URL)</label>
+      <div class="img-preview" id="imgPreview">📦</div>
+      <input type="url" id="imageUrl" placeholder="https://..." oninput="previewImage()">
+    </div>
+
+    <div class="form-group">
+      <label>Nome do Produto *</label>
+      <input type="text" id="name" placeholder="Ex: PC Gamer RTX 4060">
+    </div>
+
+    <div class="form-group">
+      <label>Descrição</label>
+      <textarea id="description" placeholder="Detalhes, especificações, estado..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Preço (R$) *</label>
+        <input type="number" id="price" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Estoque</label>
+        <input type="number" id="stock" placeholder="0" min="0" value="1">
+      </div>
+    </div>
+
+    <div class="form-row" style="margin-top:16px">
+      <div class="form-group" style="margin-bottom:0">
+        <label>Categoria *</label>
+        <select id="category">
+          <option value="">Selecione...</option>
+          <option value="PC Gamer">🖥️ PC Gamer</option>
+          <option value="Notebook">💻 Notebook</option>
+          <option value="iPhone">📱 iPhone</option>
+          <option value="Periférico">🖱️ Periférico</option>
+          <option value="Usado">♻️ Usado</option>
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label>Condição *</label>
+        <select id="condition">
+          <option value="novo">✅ Novo</option>
+          <option value="usado">🔄 Usado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top:16px;display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="featured" style="width:auto;margin:0">
+      <label for="featured" style="margin:0;cursor:pointer">⭐ Destaque na loja</label>
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="submitProduct()">➕ Cadastrar Produto</button>
+    <button class="btn-cancel" id="cancelBtn" onclick="resetForm()" style="display:none">✕ Cancelar Edição</button>
+  </div>
+
+  <!-- MAIN PANEL -->
+  <div class="main-panel">
+    <div class="stats">
+      <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total Produtos</div></div>
+      <div class="stat-card"><div class="stat-icon">🆕</div><div class="stat-val" id="statNovo">0</div><div class="stat-label">Novos</div></div>
+      <div class="stat-card"><div class="stat-icon">♻️</div><div class="stat-val" id="statUsado">0</div><div class="stat-label">Usados</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="statFeatured">0</div><div class="stat-label">Em Destaque</div></div>
+    </div>
+
+    <div class="toolbar">
+      <h2>📋 Produtos Cadastrados</h2>
+      <div class="toolbar-right">
+        <input class="search-input" type="text" placeholder="🔍 Buscar..." id="adminSearch" oninput="filterTable()">
+        <select class="filter-select" id="filterCat" onchange="filterTable()">
+          <option value="">Todas categorias</option>
+          <option value="PC Gamer">PC Gamer</option>
+          <option value="Notebook">Notebook</option>
+          <option value="iPhone">iPhone</option>
+          <option value="Periférico">Periférico</option>
+          <option value="Usado">Usado</option>
+        </select>
+        <button class="btn-setup" onclick="runSetup()">⚙️ Criar Tabela</button>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Imagem</th>
+            <th>Produto</th>
+            <th>Categoria</th>
+            <th>Preço</th>
+            <th>Cond.</th>
+            <th>Estoque</th>
+            <th>⭐</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="productsTable">
+          <tr><td colspan="8" class="empty-table">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>🗑️ Excluir Produto</h3>
+    <p>Tem certeza? Esta ação não pode ser desfeita.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = '/.netlify/functions/products';
+  let products = [];
+  let deleteId = null;
+  const categoryIcons = { 'PC Gamer':'🖥️','Notebook':'💻','iPhone':'📱','Periférico':'🖱️','Usado':'♻️','default':'📦' };
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(API);
+      products = await res.json();
+      renderTable(products);
+      updateStats();
+    } catch(e) {
+      showToast('Erro ao carregar produtos', 'error');
+    }
+  }
+
+  function renderTable(list) {
+    const tbody = document.getElementById('productsTable');
+    document.getElementById('totalBadge').textContent = `${list.length} produto${list.length!==1?'s':''}`;
+    if (!list.length) {
+      tbody.innerHTML = '<tr><td colspan="8" class="empty-table">Nenhum produto cadastrado ainda.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(p => `
+      <tr>
+        <td><div class="td-img">${p.image_url?`<img src="${p.image_url}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">`:categoryIcons[p.category]||'📦'}</div></td>
+        <td><div class="td-name" title="${p.name}">${p.name}</div></td>
+        <td><div class="td-cat">${p.category||'—'}</div></td>
+        <td><div class="td-price">R$ ${Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></td>
+        <td><span class="cond-badge ${p.condition==='usado'?'cond-usado':'cond-novo'}">${p.condition}</span></td>
+        <td>${p.stock}</td>
+        <td><span class="featured-toggle" onclick="toggleFeatured(${p.id},${!p.featured})">${p.featured?'⭐':'☆'}</span></td>
+        <td><div class="actions">
+          <button class="btn-edit" onclick="editProduct(${p.id})">✏️ Editar</button>
+          <button class="btn-delete" onclick="askDelete(${p.id})">🗑️</button>
+        </div></td>
+      </tr>`).join('');
+  }
+
+  function updateStats() {
+    document.getElementById('statTotal').textContent = products.length;
+    document.getElementById('statNovo').textContent = products.filter(p=>p.condition==='novo').length;
+    document.getElementById('statUsado').textContent = products.filter(p=>p.condition==='usado').length;
+    document.getElementById('statFeatured').textContent = products.filter(p=>p.featured).length;
+  }
+
+  function filterTable() {
+    const q = document.getElementById('adminSearch').value.toLowerCase();
+    const cat = document.getElementById('filterCat').value;
+    const filtered = products.filter(p =>
+      (!q || p.name.toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q)) &&
+      (!cat || p.category === cat)
+    );
+    renderTable(filtered);
+  }
+
+  function previewImage() {
+    const url = document.getElementById('imageUrl').value;
+    const preview = document.getElementById('imgPreview');
+    if (url) {
+      preview.innerHTML = `<img src="${url}" onerror="this.parentElement.innerHTML='❌'">`;
+    } else {
+      preview.innerHTML = '📦';
+    }
+  }
+
+  async function submitProduct() {
+    const name = document.getElementById('name').value.trim();
+    const price = document.getElementById('price').value;
+    const category = document.getElementById('category').value;
+    const condition = document.getElementById('condition').value;
+    if (!name || !price || !category) { showToast('Preencha nome, preço e categoria', 'error'); return; }
+
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<span class="spinner"></span>Salvando...';
+    btn.disabled = true;
+
+    const body = {
+      name,
+      description: document.getElementById('description').value,
+      price: parseFloat(price),
+      category,
+      condition,
+      image_url: document.getElementById('imageUrl').value || null,
+      stock: parseInt(document.getElementById('stock').value) || 0,
+      featured: document.getElementById('featured').checked
+    };
+
+    const editId = document.getElementById('editId').value;
+    try {
+      const method = editId ? 'PUT' : 'POST';
+      const url = editId ? `${API}?id=${editId}` : API;
+      const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      if (!res.ok) throw new Error(await res.text());
+      showToast(editId ? '✅ Produto atualizado!' : '✅ Produto cadastrado!', 'success');
+      resetForm();
+      loadProducts();
+    } catch(e) {
+      showToast('Erro: ' + e.message, 'error');
+    } finally {
+      btn.innerHTML = editId ? '💾 Salvar Alterações' : '➕ Cadastrar Produto';
+      btn.disabled = false;
+    }
+  }
+
+  function editProduct(id) {
+    const p = products.find(p => p.id == id);
+    if (!p) return;
+    document.getElementById('editId').value = p.id;
+    document.getElementById('name').value = p.name;
+    document.getElementById('description').value = p.description || '';
+    document.getElementById('price').value = p.price;
+    document.getElementById('category').value = p.category || '';
+    document.getElementById('condition').value = p.condition || 'novo';
+    document.getElementById('imageUrl').value = p.image_url || '';
+    document.getElementById('stock').value = p.stock || 0;
+    document.getElementById('featured').checked = p.featured || false;
+    document.getElementById('formTitle').textContent = '✏️ Editar Produto';
+    document.getElementById('submitBtn').textContent = '💾 Salvar Alterações';
+    document.getElementById('cancelBtn').style.display = 'block';
+    previewImage();
+    document.querySelector('.form-panel').scrollTop = 0;
+  }
+
+  function resetForm() {
+    document.getElementById('editId').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('price').value = '';
+    document.getElementById('category').value = '';
+    document.getElementById('condition').value = 'novo';
+    document.getElementById('imageUrl').value = '';
+    document.getElementById('stock').value = '1';
+    document.getElementById('featured').checked = false;
+    document.getElementById('imgPreview').innerHTML = '📦';
+    document.getElementById('formTitle').textContent = '➕ Novo Produto';
+    document.getElementById('submitBtn').textContent = '➕ Cadastrar Produto';
+    document.getElementById('cancelBtn').style.display = 'none';
+  }
+
+  function askDelete(id) { deleteId = id; document.getElementById('confirmOverlay').classList.add('open'); }
+  function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deleteId = null; }
+
+  async function confirmDelete() {
+    if (!deleteId) return;
+    try {
+      await fetch(`${API}?id=${deleteId}`, { method: 'DELETE' });
+      showToast('🗑️ Produto removido', 'success');
+      closeConfirm();
+      loadProducts();
+    } catch(e) {
+      showToast('Erro ao remover', 'error');
+    }
+  }
+
+  async function toggleFeatured(id, featured) {
+    const p = products.find(p => p.id == id);
+    if (!p) return;
+    try {
+      await fetch(`${API}?id=${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ...p, featured })
+      });
+      loadProducts();
+    } catch {}
+  }
+
+  async function runSetup() {
+    try {
+      const res = await fetch('/.netlify/functions/setup');
+      const data = await res.json();
+      showToast(data.message || data.error, res.ok ? 'success' : 'error');
+      if (res.ok) loadProducts();
+    } catch(e) {
+      showToast('Erro ao configurar', 'error');
+    }
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' ' + type : '');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  loadProducts();
+</script>
+</body>
+</html>

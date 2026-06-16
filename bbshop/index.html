@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBShop — Tech & Gamer Store</title>
+<style>
+  :root {
+    --primary: #b44fff;
+    --primary-dark: #8a2be2;
+    --bg: #0d0d0d;
+    --bg2: #111;
+    --bg3: #1a1a1a;
+    --border: #b44fff33;
+    --text: #e0e0e0;
+    --text-muted: #888;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* NAV */
+  nav { background: var(--bg2); border-bottom: 2px solid var(--primary); padding: 0 30px; display: flex; align-items: center; height: 60px; position: sticky; top: 0; z-index: 100; gap: 20px; }
+  .logo { color: var(--primary); font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 20px var(--primary); white-space: nowrap; }
+  .logo span { color: #fff; }
+  .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+  .nav-links button { background: none; border: none; color: var(--text-muted); font-size: 0.85rem; padding: 6px 12px; cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+  .nav-links button:hover, .nav-links button.active { color: var(--primary); background: var(--border); }
+  .search-box { margin-left: auto; display: flex; gap: 8px; }
+  .search-box input { background: var(--bg3); border: 1px solid var(--border); color: #fff; padding: 8px 14px; border-radius: 6px; width: 220px; font-size: 0.85rem; outline: none; }
+  .search-box input:focus { border-color: var(--primary); }
+  .cart-btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 0.85rem; white-space: nowrap; transition: background 0.2s; }
+  .cart-btn:hover { background: var(--primary-dark); }
+
+  /* HERO */
+  .hero { background: linear-gradient(135deg, #1a0a2e 0%, #0d0d0d 60%); padding: 60px 30px; display: flex; align-items: center; gap: 40px; border-bottom: 1px solid var(--border); }
+  .hero-text h1 { font-size: 2.6rem; font-weight: 900; color: #fff; line-height: 1.1; }
+  .hero-text h1 span { color: var(--primary); text-shadow: 0 0 30px var(--primary); }
+  .hero-text p { color: var(--text-muted); margin-top: 12px; font-size: 1rem; max-width: 480px; }
+  .hero-btns { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 0 20px var(--primary)44; }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-2px); }
+  .btn-outline { background: none; color: var(--primary); border: 1px solid var(--primary); padding: 12px 28px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; }
+  .btn-outline:hover { background: var(--border); transform: translateY(-2px); }
+  .hero-img { font-size: 7rem; filter: drop-shadow(0 0 30px var(--primary)); margin-left: auto; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+
+  /* CATEGORIES */
+  .categories { display: flex; gap: 10px; padding: 20px 30px; background: var(--bg2); overflow-x: auto; border-bottom: 1px solid var(--border); }
+  .cat-chip { background: var(--bg3); border: 1px solid var(--border); color: var(--text-muted); padding: 8px 18px; border-radius: 20px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; transition: all 0.2s; }
+  .cat-chip:hover, .cat-chip.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 0 12px var(--primary)66; }
+
+  /* PRODUCTS */
+  .section { padding: 30px; }
+  .section-title { font-size: 1.3rem; font-weight: 700; color: #fff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+  .product-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: all 0.2s; cursor: pointer; }
+  .product-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: 0 8px 30px var(--primary)33; }
+  .product-img { width: 100%; height: 180px; object-fit: cover; background: var(--bg3); display: flex; align-items: center; justify-content: center; font-size: 4rem; }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-info { padding: 14px; }
+  .product-category { font-size: 0.7rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .product-name { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .product-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .product-footer { display: flex; align-items: center; justify-content: space-between; }
+  .product-price { font-size: 1.1rem; font-weight: 900; color: var(--primary); }
+  .product-condition { font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .cond-novo { background: #0d4d2a; color: #4caf50; }
+  .cond-usado { background: #4d3a0d; color: #ff9800; }
+  .add-cart { background: var(--primary); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .add-cart:hover { background: var(--primary-dark); }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+  .empty .icon { font-size: 4rem; margin-bottom: 16px; }
+
+  /* MODAL PRODUTO */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: #000a; z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
+  .modal-img { width: 100%; height: 240px; background: var(--bg3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 6rem; margin-bottom: 20px; overflow: hidden; }
+  .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+  .modal h2 { font-size: 1.4rem; color: #fff; margin-bottom: 8px; }
+  .modal .modal-price { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin: 10px 0; }
+  .modal .modal-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
+  .modal-btn { background: var(--primary); color: #fff; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; }
+  .modal-btn:hover { background: var(--primary-dark); }
+
+  /* CART */
+  .cart-overlay { display: none; position: fixed; inset: 0; background: #000a; z-index: 1000; }
+  .cart-overlay.open { display: block; }
+  .cart-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 360px; background: var(--bg2); border-left: 1px solid var(--border); padding: 24px; display: flex; flex-direction: column; z-index: 1001; transform: translateX(100%); transition: transform 0.3s; }
+  .cart-panel.open { transform: translateX(0); }
+  .cart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .cart-header h3 { color: #fff; font-size: 1.1rem; }
+  .cart-close { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
+  .cart-items { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+  .cart-item { background: var(--bg3); border-radius: 8px; padding: 12px; display: flex; gap: 12px; align-items: center; }
+  .cart-item-icon { font-size: 2rem; }
+  .cart-item-info { flex: 1; }
+  .cart-item-name { font-size: 0.85rem; color: #fff; font-weight: 600; }
+  .cart-item-price { font-size: 0.85rem; color: var(--primary); font-weight: 700; margin-top: 2px; }
+  .cart-item-remove { background: none; border: none; color: #ff4444; cursor: pointer; font-size: 1rem; }
+  .cart-footer { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px; }
+  .cart-total { display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 16px; }
+  .cart-total span:last-child { color: var(--primary); }
+  .cart-checkout { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; }
+  .cart-checkout:hover { background: var(--primary-dark); }
+  .cart-empty { text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 0.9rem; }
+
+  /* TOAST */
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary); color: #fff; padding: 12px 24px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; opacity: 0; transition: all 0.3s; z-index: 2000; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* FOOTER */
+  footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 30px; text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 40px; }
+  footer span { color: var(--primary); }
+
+  /* LOADING */
+  .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+  .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    .hero { flex-direction: column; padding: 30px 16px; }
+    .hero-img { display: none; }
+    .hero-text h1 { font-size: 1.8rem; }
+    nav { padding: 0 16px; gap: 10px; }
+    .nav-links { display: none; }
+    .search-box input { width: 140px; }
+    .section { padding: 20px 16px; }
+    .categories { padding: 14px 16px; }
+    .cart-panel { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">⚡BB<span>SHOP</span></div>
+  <div class="nav-links">
+    <button onclick="filterCategory('todos')" class="active" id="btn-todos">Todos</button>
+    <button onclick="filterCategory('PC Gamer')" id="btn-PC Gamer">🖥️ PCs Gamer</button>
+    <button onclick="filterCategory('Notebook')" id="btn-Notebook">💻 Notebooks</button>
+    <button onclick="filterCategory('iPhone')" id="btn-iPhone">📱 iPhones</button>
+    <button onclick="filterCategory('Periférico')" id="btn-Periférico">🖱️ Periféricos</button>
+    <button onclick="filterCategory('Usado')" id="btn-Usado">♻️ Usados</button>
+  </div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar produtos..." oninput="searchProducts()">
+  </div>
+  <button class="cart-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
+</nav>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>Tecnologia <span>Gamer</span><br>& Premium</h1>
+    <p>PCs Gamer, Notebooks, iPhones e Periféricos com os melhores preços. Novos e usados com garantia.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="filterCategory('PC Gamer')">🎮 Ver PCs Gamer</button>
+      <button class="btn-outline" onclick="filterCategory('Usado')">♻️ Produtos Usados</button>
+    </div>
+  </div>
+  <div class="hero-img">🖥️</div>
+</div>
+
+<div class="categories">
+  <div class="cat-chip active" onclick="filterCategory('todos')">⚡ Todos</div>
+  <div class="cat-chip" onclick="filterCategory('PC Gamer')">🖥️ PCs Gamer</div>
+  <div class="cat-chip" onclick="filterCategory('Notebook')">💻 Notebooks</div>
+  <div class="cat-chip" onclick="filterCategory('iPhone')">📱 iPhones</div>
+  <div class="cat-chip" onclick="filterCategory('Periférico')">🖱️ Periféricos</div>
+  <div class="cat-chip" onclick="filterCategory('Usado')">♻️ Usados</div>
+</div>
+
+<div class="section">
+  <div class="section-title" id="sectionTitle">⚡ Todos os Produtos</div>
+  <div id="productsContainer">
+    <div class="loading"><div class="spinner"></div><br>Carregando produtos...</div>
+  </div>
+</div>
+
+<footer>
+  <p>⚡ <span>BBShop</span> — Tecnologia & Games © 2025</p>
+  <p style="margin-top:6px">PCs Gamer · Notebooks · iPhones · Periféricos · Usados</p>
+</footer>
+
+<!-- Modal Produto -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-img" id="modalImg"></div>
+    <div class="product-category" id="modalCategory"></div>
+    <h2 id="modalName"></h2>
+    <div class="modal-price" id="modalPrice"></div>
+    <div id="modalCondition" style="margin-bottom:12px"></div>
+    <p class="modal-desc" id="modalDesc"></p>
+    <button class="modal-btn" id="modalCartBtn">🛒 Adicionar ao Carrinho</button>
+  </div>
+</div>
+
+<!-- Cart -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-header">
+    <h3>🛒 Carrinho</h3>
+    <button class="cart-close" onclick="closeCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">R$ 0,00</span></div>
+    <button class="cart-checkout" onclick="checkout()">Finalizar Pedido via WhatsApp</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API = '/.netlify/functions/products';
+  let allProducts = [];
+  let cart = JSON.parse(localStorage.getItem('bbshop_cart') || '[]');
+  let currentProduct = null;
+
+  const categoryIcons = {
+    'PC Gamer': '🖥️', 'Notebook': '💻', 'iPhone': '📱',
+    'Periférico': '🖱️', 'Usado': '♻️', 'default': '📦'
+  };
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(API);
+      allProducts = await res.json();
+      renderProducts(allProducts);
+    } catch {
+      document.getElementById('productsContainer').innerHTML =
+        '<div class="empty"><div class="icon">⚠️</div><p>Erro ao carregar produtos. Tente novamente.</p></div>';
+    }
+  }
+
+  function renderProducts(products) {
+    const container = document.getElementById('productsContainer');
+    if (!products.length) {
+      container.innerHTML = '<div class="empty"><div class="icon">🎮</div><p>Nenhum produto encontrado.</p></div>';
+      return;
+    }
+    container.innerHTML = `<div class="products-grid">${products.map(p => `
+      <div class="product-card" onclick="openProduct(${p.id})">
+        <div class="product-img">
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦')}
+        </div>
+        <div class="product-info">
+          <div class="product-category">${p.category || ''}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-desc">${p.description || ''}</div>
+          <div class="product-footer">
+            <div class="product-price">R$ ${Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+            <span class="product-condition ${p.condition==='usado'?'cond-usado':'cond-novo'}">${p.condition}</span>
+          </div>
+          <button class="add-cart" style="margin-top:10px;width:100%" onclick="event.stopPropagation();addToCart(${p.id})">🛒 Adicionar</button>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function filterCategory(cat) {
+    document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+    const titles = { todos:'⚡ Todos os Produtos','PC Gamer':'🖥️ PCs Gamer','Notebook':'💻 Notebooks','iPhone':'📱 iPhones','Periférico':'🖱️ Periféricos','Usado':'♻️ Produtos Usados' };
+    document.getElementById('sectionTitle').textContent = titles[cat] || cat;
+    const filtered = cat === 'todos' ? allProducts : allProducts.filter(p => p.category === cat);
+    renderProducts(filtered);
+    document.getElementById('searchInput').value = '';
+  }
+
+  function searchProducts() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allProducts.filter(p =>
+      p.name.toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q) || (p.category||'').toLowerCase().includes(q)
+    );
+    renderProducts(filtered);
+  }
+
+  function openProduct(id) {
+    currentProduct = allProducts.find(p => p.id == id);
+    if (!currentProduct) return;
+    const p = currentProduct;
+    document.getElementById('modalImg').innerHTML = p.image_url
+      ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦');
+    document.getElementById('modalCategory').textContent = p.category || '';
+    document.getElementById('modalName').textContent = p.name;
+    document.getElementById('modalPrice').textContent = 'R$ ' + Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2});
+    document.getElementById('modalCondition').innerHTML = `<span class="product-condition ${p.condition==='usado'?'cond-usado':'cond-novo'}">${p.condition}</span>`;
+    document.getElementById('modalDesc').textContent = p.description || '';
+    document.getElementById('modalCartBtn').onclick = () => { addToCart(p.id); closeModal(); };
+    document.getElementById('productModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('productModal').classList.remove('open'); }
+
+  function addToCart(id) {
+    const p = allProducts.find(p => p.id == id);
+    if (!p) return;
+    const existing = cart.find(i => i.id == id);
+    if (existing) existing.qty = (existing.qty || 1) + 1;
+    else cart.push({ ...p, qty: 1 });
+    saveCart();
+    showToast(`✅ ${p.name} adicionado!`);
+  }
+
+  function saveCart() {
+    localStorage.setItem('bbshop_cart', JSON.stringify(cart));
+    document.getElementById('cartCount').textContent = cart.reduce((s,i) => s + (i.qty||1), 0);
+  }
+
+  function openCart() {
+    renderCart();
+    document.getElementById('cartOverlay').classList.add('open');
+    document.getElementById('cartPanel').classList.add('open');
+  }
+
+  function closeCart() {
+    document.getElementById('cartOverlay').classList.remove('open');
+    document.getElementById('cartPanel').classList.remove('open');
+  }
+
+  function renderCart() {
+    const container = document.getElementById('cartItems');
+    if (!cart.length) { container.innerHTML = '<div class="cart-empty">🛒 Seu carrinho está vazio</div>'; document.getElementById('cartTotal').textContent = 'R$ 0,00'; return; }
+    container.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <div class="cart-item-icon">${categoryIcons[i.category]||'📦'}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${i.name}</div>
+          <div class="cart-item-price">R$ ${Number(i.price).toLocaleString('pt-BR',{minimumFractionDigits:2})} × ${i.qty||1}</div>
+        </div>
+        <button class="cart-item-remove" onclick="removeFromCart(${i.id})">🗑</button>
+      </div>`).join('');
+    const total = cart.reduce((s,i) => s + Number(i.price) * (i.qty||1), 0);
+    document.getElementById('cartTotal').textContent = 'R$ ' + total.toLocaleString('pt-BR',{minimumFractionDigits:2});
+  }
+
+  function removeFromCart(id) { cart = cart.filter(i => i.id != id); saveCart(); renderCart(); }
+
+  function checkout() {
+    if (!cart.length) return;
+    const items = cart.map(i => `• ${i.name} (x${i.qty||1}) - R$ ${(Number(i.price)*(i.qty||1)).toLocaleString('pt-BR',{minimumFractionDigits:2})}`).join('\n');
+    const total = cart.reduce((s,i) => s + Number(i.price)*(i.qty||1), 0);
+    const msg = encodeURIComponent(`Olá! Tenho interesse nos seguintes produtos da BBShop:\n\n${items}\n\nTotal: R$ ${total.toLocaleString('pt-BR',{minimumFractionDigits:2})}`);
+    window.open(`https://wa.me/?text=${msg}`, '_blank');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  document.getElementById('productModal').addEventListener('click', e => { if(e.target===document.getElementById('productModal')) closeModal(); });
+  saveCart();
+  loadProducts();
+</script>
+</body>
+</html>
