@@ -5,7 +5,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["@neondatabase/serverless"]
+  external_node_modules = ["@neondatabase/serverless", "bcryptjs", "jsonwebtoken"]
 
 [[redirects]]
   from = "/api/*"

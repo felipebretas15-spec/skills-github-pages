@@ -4,6 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BBShop — Admin</title>
+<script>
+  // Proteção: redireciona para login se não autenticado
+  (function() {
+    const token = localStorage.getItem('bbshop_token');
+    if (!token) { window.location.href = 'login.html'; }
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('bbshop_token');
+        window.location.href = 'login.html';
+      }
+    } catch { window.location.href = 'login.html'; }
+  })();
+</script>
 <style>
   :root {
     --primary: #b44fff;
@@ -128,7 +142,9 @@
   <div class="logo">⚡BB<span>SHOP</span> <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;letter-spacing:0">Admin</span></div>
   <div class="header-right">
     <span class="badge" id="totalBadge">0 produtos</span>
+    <span id="adminName" style="font-size:0.8rem;color:var(--text-muted)"></span>
     <button class="btn-store" onclick="window.open('index.html','_blank')">🛍️ Ver Loja</button>
+    <button class="btn-store" onclick="logout()" style="border-color:#f4433644;color:#f44336">🚪 Sair</button>
   </div>
 </header>
 
@@ -259,6 +275,16 @@
 
 <script>
   const API = '/.netlify/functions/products';
+
+  // Mostra nome do admin
+  const adminName = localStorage.getItem('bbshop_admin_name');
+  if (adminName) document.getElementById('adminName').textContent = '👤 ' + adminName;
+
+  function logout() {
+    localStorage.removeItem('bbshop_token');
+    localStorage.removeItem('bbshop_admin_name');
+    window.location.href = 'login.html';
+  }
   let products = [];
   let deleteId = null;
   const categoryIcons = { 'PC Gamer':'🖥️','Notebook':'💻','iPhone':'📱','Periférico':'🖱️','Usado':'♻️','default':'📦' };
