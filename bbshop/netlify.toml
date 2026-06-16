@@ -1,5 +1,4 @@
 [build]
-  base = "bbshop"
   functions = "netlify/functions"
   publish = "."
 
