@@ -31,17 +31,17 @@ exports.handler = async () => {
     `;
 
     // Admin padrão (só cria se não existir)
-    const existing = await sql`SELECT id FROM admins WHERE email = 'admin@bbshop.com'`;
+    const existing = await sql`SELECT id FROM admins WHERE email = 'felipebretas15@gmail.com'`;
     if (!existing.length) {
       const hash = await bcrypt.hash('bbshop@2025', 10);
-      await sql`INSERT INTO admins (name, email, password_hash) VALUES ('Administrador', 'admin@bbshop.com', ${hash})`;
+      await sql`INSERT INTO admins (name, email, password_hash) VALUES ('Administrador', 'felipebretas15@gmail.com', ${hash})`;
     }
 
     return {
       statusCode: 200,
       body: JSON.stringify({
         message: 'Banco configurado com sucesso!',
-        admin: { email: 'admin@bbshop.com', senha: 'bbshop@2025' }
+        admin: { email: 'felipebretas15@gmail.com', senha: 'bbshop@2025' }
       })
     };
   } catch (err) {
