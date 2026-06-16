@@ -26,13 +26,13 @@ exports.handler = async (event) => {
       const featured = event.queryStringParameters?.featured;
       let rows;
       if (category && featured === 'true') {
-        rows = await sql`SELECT * FROM products WHERE category = ${category} AND featured = true ORDER BY created_at DESC`;
+        rows = await sql`SELECT p.*, (SELECT image_data FROM product_images WHERE product_id = p.id ORDER BY sort_order, id LIMIT 1) as thumbnail FROM products p WHERE p.category = ${category} AND p.featured = true ORDER BY p.created_at DESC`;
       } else if (category) {
-        rows = await sql`SELECT * FROM products WHERE category = ${category} ORDER BY created_at DESC`;
+        rows = await sql`SELECT p.*, (SELECT image_data FROM product_images WHERE product_id = p.id ORDER BY sort_order, id LIMIT 1) as thumbnail FROM products p WHERE p.category = ${category} ORDER BY p.created_at DESC`;
       } else if (featured === 'true') {
-        rows = await sql`SELECT * FROM products WHERE featured = true ORDER BY created_at DESC`;
+        rows = await sql`SELECT p.*, (SELECT image_data FROM product_images WHERE product_id = p.id ORDER BY sort_order, id LIMIT 1) as thumbnail FROM products p WHERE p.featured = true ORDER BY p.created_at DESC`;
       } else {
-        rows = await sql`SELECT * FROM products ORDER BY created_at DESC`;
+        rows = await sql`SELECT p.*, (SELECT image_data FROM product_images WHERE product_id = p.id ORDER BY sort_order, id LIMIT 1) as thumbnail FROM products p ORDER BY p.created_at DESC`;
       }
       return { statusCode: 200, headers, body: JSON.stringify(rows) };
     }

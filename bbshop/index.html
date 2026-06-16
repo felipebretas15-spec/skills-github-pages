@@ -247,7 +247,7 @@
     container.innerHTML = `<div class="products-grid">${products.map(p => `
       <div class="product-card" onclick="openProduct(${p.id})">
         <div class="product-img">
-          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦')}
+          ${p.thumbnail ? `<img src="${p.thumbnail}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : p.image_url ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦')}
         </div>
         <div class="product-info">
           <div class="product-category">${p.category || ''}</div>
@@ -284,8 +284,9 @@
     currentProduct = allProducts.find(p => p.id == id);
     if (!currentProduct) return;
     const p = currentProduct;
-    document.getElementById('modalImg').innerHTML = p.image_url
-      ? `<img src="${p.image_url}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦');
+    const modalImgSrc = p.thumbnail || p.image_url;
+    document.getElementById('modalImg').innerHTML = modalImgSrc
+      ? `<img src="${modalImgSrc}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦');
     document.getElementById('modalCategory').textContent = p.category || '';
     document.getElementById('modalName').textContent = p.name;
     document.getElementById('modalPrice').textContent = 'R$ ' + Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2});

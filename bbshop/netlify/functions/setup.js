@@ -3,7 +3,6 @@ const bcrypt = require('bcryptjs');
 
 exports.handler = async () => {
   try {
-    // Tabela de produtos
     await sql`
       CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
@@ -19,7 +18,16 @@ exports.handler = async () => {
       )
     `;
 
-    // Tabela de admins
+    await sql`
+      CREATE TABLE IF NOT EXISTS product_images (
+        id SERIAL PRIMARY KEY,
+        product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+        image_data TEXT NOT NULL,
+        sort_order INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT NOW()
+      )
+    `;
+
     await sql`
       CREATE TABLE IF NOT EXISTS admins (
         id SERIAL PRIMARY KEY,
@@ -30,7 +38,6 @@ exports.handler = async () => {
       )
     `;
 
-    // Admin padrão (só cria se não existir)
     const existing = await sql`SELECT id FROM admins WHERE email = 'felipebretas15@gmail.com'`;
     if (!existing.length) {
       const hash = await bcrypt.hash('bbshop@2025', 10);
@@ -39,10 +46,7 @@ exports.handler = async () => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: 'Banco configurado com sucesso!',
-        admin: { email: 'felipebretas15@gmail.com', senha: 'bbshop@2025' }
-      })
+      body: JSON.stringify({ message: 'Banco configurado com sucesso!' })
     };
   } catch (err) {
     return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
