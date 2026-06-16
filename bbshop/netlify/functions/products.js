@@ -1,4 +1,4 @@
-const pool = require('./_db');
+const sql = require('./_db');
 
 const headers = {
   'Access-Control-Allow-Origin': '*',
@@ -15,54 +15,58 @@ exports.handler = async (event) => {
   const id = event.queryStringParameters?.id;
 
   try {
-    // GET - listar todos ou um produto
+    // GET
     if (event.httpMethod === 'GET') {
       if (id) {
-        const { rows } = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+        const rows = await sql`SELECT * FROM products WHERE id = ${id}`;
         if (!rows.length) return { statusCode: 404, headers, body: JSON.stringify({ error: 'Produto não encontrado' }) };
         return { statusCode: 200, headers, body: JSON.stringify(rows[0]) };
       }
       const category = event.queryStringParameters?.category;
       const featured = event.queryStringParameters?.featured;
-      let query = 'SELECT * FROM products';
-      const params = [];
-      const conditions = [];
-      if (category) { params.push(category); conditions.push(`category = $${params.length}`); }
-      if (featured === 'true') conditions.push('featured = true');
-      if (conditions.length) query += ' WHERE ' + conditions.join(' AND ');
-      query += ' ORDER BY created_at DESC';
-      const { rows } = await pool.query(query, params);
+      let rows;
+      if (category && featured === 'true') {
+        rows = await sql`SELECT * FROM products WHERE category = ${category} AND featured = true ORDER BY created_at DESC`;
+      } else if (category) {
+        rows = await sql`SELECT * FROM products WHERE category = ${category} ORDER BY created_at DESC`;
+      } else if (featured === 'true') {
+        rows = await sql`SELECT * FROM products WHERE featured = true ORDER BY created_at DESC`;
+      } else {
+        rows = await sql`SELECT * FROM products ORDER BY created_at DESC`;
+      }
       return { statusCode: 200, headers, body: JSON.stringify(rows) };
     }
 
-    // POST - criar produto
+    // POST
     if (event.httpMethod === 'POST') {
       const { name, description, price, category, condition, image_url, stock, featured } = JSON.parse(event.body);
-      const { rows } = await pool.query(
-        `INSERT INTO products (name, description, price, category, condition, image_url, stock, featured)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-        [name, description, price, category, condition || 'novo', image_url, stock || 0, featured || false]
-      );
+      const rows = await sql`
+        INSERT INTO products (name, description, price, category, condition, image_url, stock, featured)
+        VALUES (${name}, ${description}, ${price}, ${category}, ${condition || 'novo'}, ${image_url}, ${stock || 0}, ${featured || false})
+        RETURNING *
+      `;
       return { statusCode: 201, headers, body: JSON.stringify(rows[0]) };
     }
 
-    // PUT - editar produto
+    // PUT
     if (event.httpMethod === 'PUT') {
       if (!id) return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID obrigatório' }) };
       const { name, description, price, category, condition, image_url, stock, featured } = JSON.parse(event.body);
-      const { rows } = await pool.query(
-        `UPDATE products SET name=$1, description=$2, price=$3, category=$4, condition=$5,
-         image_url=$6, stock=$7, featured=$8 WHERE id=$9 RETURNING *`,
-        [name, description, price, category, condition, image_url, stock, featured, id]
-      );
+      const rows = await sql`
+        UPDATE products SET
+          name = ${name}, description = ${description}, price = ${price},
+          category = ${category}, condition = ${condition}, image_url = ${image_url},
+          stock = ${stock}, featured = ${featured}
+        WHERE id = ${id} RETURNING *
+      `;
       if (!rows.length) return { statusCode: 404, headers, body: JSON.stringify({ error: 'Produto não encontrado' }) };
       return { statusCode: 200, headers, body: JSON.stringify(rows[0]) };
     }
 
-    // DELETE - remover produto
+    // DELETE
     if (event.httpMethod === 'DELETE') {
       if (!id) return { statusCode: 400, headers, body: JSON.stringify({ error: 'ID obrigatório' }) };
-      await pool.query('DELETE FROM products WHERE id = $1', [id]);
+      await sql`DELETE FROM products WHERE id = ${id}`;
       return { statusCode: 200, headers, body: JSON.stringify({ message: 'Produto removido' }) };
     }
 

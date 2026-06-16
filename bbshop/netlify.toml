@@ -1,9 +1,11 @@
 [build]
+  base = "bbshop"
   functions = "netlify/functions"
   publish = "."
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["@neondatabase/serverless"]
 
 [[redirects]]
   from = "/api/*"
