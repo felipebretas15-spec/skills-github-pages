@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>BBShop — Admin</title>
 <script>
   (function() {
@@ -27,158 +27,182 @@
     --border: #b44fff33;
     --text: #e0e0e0;
     --text-muted: #888;
-    --success: #4caf50;
     --danger: #f44336;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-  header { background: var(--bg2); border-bottom: 2px solid var(--primary); padding: 0 30px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-  .logo { color: var(--primary); font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; }
+  /* HEADER */
+  header { background: var(--bg2); border-bottom: 2px solid var(--primary); padding: 0 16px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 200; gap: 10px; }
+  .logo { color: var(--primary); font-size: 1.2rem; font-weight: 900; letter-spacing: 2px; white-space: nowrap; }
   .logo span { color: #fff; }
-  .header-right { display: flex; gap: 12px; align-items: center; }
-  .badge { background: var(--primary); color: #fff; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
-  .btn-store { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
-  .btn-store:hover { border-color: var(--primary); color: var(--primary); }
+  .header-right { display: flex; gap: 8px; align-items: center; }
+  .badge { background: var(--primary); color: #fff; padding: 3px 8px; border-radius: 10px; font-size: 0.7rem; font-weight: 700; white-space: nowrap; }
+  .btn-icon { background: none; border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+  .btn-logout { border-color: #f4433644; color: #f44336; }
 
-  .layout { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 60px); }
+  /* TABS (mobile) */
+  .tabs { display: none; background: var(--bg2); border-bottom: 1px solid var(--border); }
+  .tabs button { flex: 1; padding: 14px; background: none; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; }
+  .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
 
-  /* FORM */
-  .form-panel { background: var(--bg2); border-right: 1px solid var(--border); padding: 24px; overflow-y: auto; }
-  .form-panel h2 { font-size: 1rem; color: #fff; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
-  .form-group { margin-bottom: 16px; }
-  label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+  /* LAYOUT DESKTOP */
+  .layout { display: grid; grid-template-columns: 360px 1fr; min-height: calc(100vh - 56px); }
+
+  /* FORM PANEL */
+  .form-panel { background: var(--bg2); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+  .form-panel h2 { font-size: 1rem; color: #fff; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 14px; }
+  label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 5px; }
   input, select, textarea {
     width: 100%; background: var(--bg3); border: 1px solid #333; color: #fff;
-    padding: 10px 12px; border-radius: 8px; font-size: 0.9rem; outline: none; transition: border 0.2s;
-    font-family: inherit;
+    padding: 11px 12px; border-radius: 8px; font-size: 0.9rem; outline: none;
+    transition: border 0.2s; font-family: inherit; -webkit-appearance: none;
   }
   input:focus, select:focus, textarea:focus { border-color: var(--primary); }
   textarea { resize: vertical; min-height: 80px; }
   select option { background: var(--bg3); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-  /* IMAGE UPLOAD */
+  /* UPLOAD */
   .upload-area {
-    border: 2px dashed #333; border-radius: 10px; padding: 20px;
-    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg3);
-    position: relative;
+    border: 2px dashed #333; border-radius: 10px; padding: 18px 12px;
+    text-align: center; cursor: pointer; background: var(--bg3); position: relative; transition: all 0.2s;
   }
-  .upload-area:hover, .upload-area.drag { border-color: var(--primary); background: #1a0a2e44; }
+  .upload-area:active { border-color: var(--primary); background: #1a0a2e44; }
   .upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-  .upload-area .upload-icon { font-size: 2rem; margin-bottom: 6px; }
-  .upload-area p { color: var(--text-muted); font-size: 0.8rem; }
+  .upload-area .upload-icon { font-size: 1.8rem; margin-bottom: 4px; }
+  .upload-area p { color: var(--text-muted); font-size: 0.78rem; }
   .upload-area span { color: var(--primary); font-weight: 600; }
 
-  .images-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .images-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
   .img-thumb { position: relative; aspect-ratio: 1; background: var(--bg3); border-radius: 8px; overflow: hidden; border: 1px solid #333; }
   .img-thumb img { width: 100%; height: 100%; object-fit: cover; }
-  .img-thumb .remove-img {
-    position: absolute; top: 4px; right: 4px; background: #000b; color: #fff;
-    border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.7rem;
+  .remove-img {
+    position: absolute; top: 3px; right: 3px; background: #000c; color: #fff;
+    border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.7rem;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
   }
-  .img-thumb .remove-img:hover { background: var(--danger); }
-  .img-thumb .main-badge { position: absolute; bottom: 4px; left: 4px; background: var(--primary); color: #fff; font-size: 0.55rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; }
-  .img-count { font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; }
+  .main-badge { position: absolute; bottom: 3px; left: 3px; background: var(--primary); color: #fff; font-size: 0.5rem; padding: 2px 5px; border-radius: 3px; font-weight: 700; }
+  .img-count { font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; }
 
-  .btn-submit { background: var(--primary); color: #fff; border: none; padding: 12px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; width: 100%; transition: background 0.2s; margin-top: 4px; }
-  .btn-submit:hover { background: var(--primary-dark); }
-  .btn-cancel { background: none; border: 1px solid #333; color: var(--text-muted); padding: 10px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 8px; transition: all 0.2s; }
-  .btn-cancel:hover { border-color: var(--danger); color: var(--danger); }
+  .btn-submit { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; margin-top: 6px; }
+  .btn-cancel { background: none; border: 1px solid #333; color: var(--text-muted); padding: 12px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 8px; }
 
-  /* MAIN */
-  .main-panel { padding: 24px; overflow-y: auto; }
-  .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
-  .toolbar h2 { font-size: 1rem; color: #fff; }
-  .toolbar-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
-  .search-input { background: var(--bg3); border: 1px solid #333; color: #fff; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; outline: none; width: 200px; }
-  .search-input:focus { border-color: var(--primary); }
-  .filter-select { background: var(--bg3); border: 1px solid #333; color: var(--text-muted); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; outline: none; }
-  .btn-setup { background: var(--bg3); border: 1px solid var(--border); color: var(--primary); padding: 8px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
-  .btn-setup:hover { background: var(--border); }
+  /* MAIN PANEL */
+  .main-panel { padding: 16px; overflow-y: auto; }
 
-  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; text-align: center; }
-  .stat-card .stat-icon { font-size: 1.6rem; margin-bottom: 4px; }
-  .stat-card .stat-val { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
-  .stat-card .stat-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+  /* STATS */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; }
+  .stat-icon { font-size: 1.3rem; }
+  .stat-val { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
+  .stat-label { font-size: 0.62rem; color: var(--text-muted); margin-top: 1px; }
 
-  .table-wrapper { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-  table { width: 100%; border-collapse: collapse; }
-  thead { background: var(--bg3); }
-  th { padding: 12px 14px; text-align: left; font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-  td { padding: 12px 14px; font-size: 0.85rem; border-top: 1px solid #1e1e1e; vertical-align: middle; }
-  tr:hover td { background: #ffffff05; }
-  .td-img { width: 44px; height: 44px; background: var(--bg3); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; overflow: hidden; flex-shrink: 0; }
-  .td-img img { width: 100%; height: 100%; object-fit: cover; }
-  .td-name { font-weight: 600; color: #fff; max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .td-price { color: var(--primary); font-weight: 700; white-space: nowrap; }
-  .td-cat { font-size: 0.75rem; color: var(--text-muted); }
-  .cond-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  /* TOOLBAR */
+  .toolbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .toolbar h2 { font-size: 0.95rem; color: #fff; }
+  .search-input { background: var(--bg3); border: 1px solid #333; color: #fff; padding: 9px 12px; border-radius: 6px; font-size: 0.85rem; outline: none; flex: 1; min-width: 120px; }
+  .filter-select { background: var(--bg3); border: 1px solid #333; color: var(--text-muted); padding: 9px 10px; border-radius: 6px; font-size: 0.78rem; outline: none; -webkit-appearance: none; }
+  .btn-setup { background: var(--bg3); border: 1px solid var(--border); color: var(--primary); padding: 9px 12px; border-radius: 6px; font-size: 0.78rem; cursor: pointer; white-space: nowrap; }
+
+  /* CARDS DE PRODUTO (mobile friendly) */
+  .products-list { display: flex; flex-direction: column; gap: 10px; }
+  .product-row {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px; display: flex; gap: 12px; align-items: flex-start;
+  }
+  .prod-thumb { width: 60px; height: 60px; background: var(--bg3); border-radius: 8px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+  .prod-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .prod-info { flex: 1; min-width: 0; }
+  .prod-name { font-weight: 700; color: #fff; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prod-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+  .prod-price { color: var(--primary); font-weight: 700; font-size: 0.95rem; }
+  .prod-cat { font-size: 0.7rem; color: var(--text-muted); }
+  .cond-badge { font-size: 0.65rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; }
   .cond-novo { background: #0d4d2a; color: #4caf50; }
   .cond-usado { background: #4d3a0d; color: #ff9800; }
-  .actions { display: flex; gap: 6px; }
-  .btn-edit { background: var(--border); color: var(--primary); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
-  .btn-edit:hover { background: var(--primary); color: #fff; }
-  .btn-delete { background: #ff433422; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }
-  .btn-delete:hover { background: var(--danger); color: #fff; }
-  .featured-toggle { cursor: pointer; font-size: 1.1rem; }
-  .empty-table { text-align: center; padding: 50px; color: var(--text-muted); }
+  .prod-stock { font-size: 0.7rem; color: var(--text-muted); }
+  .prod-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .btn-edit { background: var(--border); color: var(--primary); border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; flex: 1; }
+  .btn-delete { background: #ff433422; color: var(--danger); border: none; padding: 8px 16px; border-radius: 6px; font-size: 0.82rem; font-weight: 600; cursor: pointer; flex: 1; }
+  .featured-toggle { cursor: pointer; font-size: 1.2rem; align-self: flex-start; padding: 4px; }
 
-  .confirm-overlay { display: none; position: fixed; inset: 0; background: #000b; z-index: 200; align-items: center; justify-content: center; }
+  .empty-list { text-align: center; padding: 50px 20px; color: var(--text-muted); font-size: 0.9rem; }
+
+  /* MODAL CONFIRM */
+  .confirm-overlay { display: none; position: fixed; inset: 0; background: #000b; z-index: 300; align-items: center; justify-content: center; padding: 20px; }
   .confirm-overlay.open { display: flex; }
-  .confirm-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 28px; max-width: 360px; width: 90%; text-align: center; }
-  .confirm-box h3 { color: #fff; margin-bottom: 10px; }
-  .confirm-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px; }
+  .confirm-box { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 28px 24px; max-width: 360px; width: 100%; text-align: center; }
+  .confirm-box h3 { color: #fff; margin-bottom: 10px; font-size: 1.1rem; }
+  .confirm-box p { color: var(--text-muted); font-size: 0.88rem; margin-bottom: 24px; }
   .confirm-btns { display: flex; gap: 10px; }
-  .confirm-btns button { flex: 1; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
+  .confirm-btns button { flex: 1; padding: 13px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.9rem; }
   .btn-confirm-del { background: var(--danger); color: #fff; border: none; }
   .btn-confirm-cancel { background: none; border: 1px solid #333; color: var(--text-muted); }
 
-  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--primary); color: #fff; padding: 12px 20px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; opacity: 0; transition: all 0.3s; z-index: 999; transform: translateY(20px); }
-  .toast.show { opacity: 1; transform: translateY(0); }
+  /* TOAST */
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--primary); color: #fff; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 0.88rem; opacity: 0; transition: all 0.3s; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--danger); }
   .toast.success { background: #2e7d32; }
 
-  .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid #fff4; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid #fff4; border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 900px) {
+  /* ===== MOBILE ===== */
+  @media (max-width: 768px) {
+    .tabs { display: flex; }
     .layout { grid-template-columns: 1fr; }
-    .form-panel { border-right: none; border-bottom: 1px solid var(--border); }
+    .form-panel { border-right: none; display: none; }
+    .form-panel.active { display: block; }
+    .main-panel { display: none; }
+    .main-panel.active { display: block; }
     .stats { grid-template-columns: repeat(2, 1fr); }
+    .header-right .admin-name { display: none; }
+    .toolbar { gap: 6px; }
+    .toolbar h2 { display: none; }
+  }
+
+  /* ===== DESKTOP ===== */
+  @media (min-width: 769px) {
+    .form-panel, .main-panel { display: block !important; }
+    .tabs { display: none !important; }
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">⚡BB<span>SHOP</span> <span style="font-size:0.75rem;color:var(--text-muted);font-weight:400;letter-spacing:0">Admin</span></div>
+  <div class="logo">⚡BB<span>SHOP</span></div>
   <div class="header-right">
     <span class="badge" id="totalBadge">0 produtos</span>
-    <span id="adminName" style="font-size:0.8rem;color:var(--text-muted)"></span>
-    <button class="btn-store" onclick="window.open('index.html','_blank')">🛍️ Ver Loja</button>
-    <button class="btn-store" onclick="logout()" style="border-color:#f4433644;color:#f44336">🚪 Sair</button>
+    <span class="admin-name" id="adminName" style="font-size:0.78rem;color:var(--text-muted)"></span>
+    <button class="btn-icon" onclick="window.open('index.html','_blank')">🛍️</button>
+    <button class="btn-icon btn-logout" onclick="logout()">🚪 Sair</button>
   </div>
 </header>
+
+<!-- ABAS MOBILE -->
+<div class="tabs">
+  <button id="tabProducts" class="active" onclick="switchTab('products')">📋 Produtos</button>
+  <button id="tabForm" onclick="switchTab('form')">➕ Cadastrar</button>
+</div>
 
 <div class="layout">
 
   <!-- FORM -->
-  <div class="form-panel">
+  <div class="form-panel" id="formPanel">
     <h2 id="formTitle">➕ Novo Produto</h2>
     <input type="hidden" id="editId">
 
-    <!-- UPLOAD DE IMAGENS -->
     <div class="form-group">
       <label>📷 Imagens do Produto</label>
       <div class="upload-area" id="uploadArea">
         <input type="file" id="fileInput" accept="image/*" multiple onchange="handleFiles(this.files)">
         <div class="upload-icon">📁</div>
-        <p><span>Clique para selecionar</span> ou arraste aqui</p>
-        <p style="margin-top:4px;font-size:0.75rem">Múltiplas imagens permitidas · JPG, PNG, WEBP</p>
+        <p><span>Toque para selecionar</span> fotos</p>
+        <p style="margin-top:2px;font-size:0.7rem">Múltiplas imagens · JPG, PNG, WEBP</p>
       </div>
       <div class="images-grid" id="imagesGrid"></div>
       <div class="img-count" id="imgCount"></div>
@@ -197,15 +221,15 @@
     <div class="form-row">
       <div class="form-group" style="margin-bottom:0">
         <label>Preço (R$) *</label>
-        <input type="number" id="price" placeholder="0.00" step="0.01" min="0">
+        <input type="number" id="price" placeholder="0.00" step="0.01" min="0" inputmode="decimal">
       </div>
       <div class="form-group" style="margin-bottom:0">
         <label>Estoque</label>
-        <input type="number" id="stock" placeholder="0" min="0" value="1">
+        <input type="number" id="stock" value="1" min="0" inputmode="numeric">
       </div>
     </div>
 
-    <div class="form-row" style="margin-top:16px">
+    <div class="form-row" style="margin-top:14px">
       <div class="form-group" style="margin-bottom:0">
         <label>Categoria *</label>
         <select id="category">
@@ -226,9 +250,9 @@
       </div>
     </div>
 
-    <div class="form-group" style="margin-top:16px;display:flex;align-items:center;gap:10px">
-      <input type="checkbox" id="featured" style="width:auto;margin:0">
-      <label for="featured" style="margin:0;cursor:pointer">⭐ Destaque na loja</label>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="featured" style="width:20px;height:20px;margin:0;flex-shrink:0">
+      <label for="featured" style="margin:0;cursor:pointer;font-size:0.88rem;color:var(--text)">⭐ Destaque na loja</label>
     </div>
 
     <button class="btn-submit" id="submitBtn" onclick="submitProduct()">➕ Cadastrar Produto</button>
@@ -236,48 +260,30 @@
   </div>
 
   <!-- MAIN -->
-  <div class="main-panel">
+  <div class="main-panel active" id="mainPanel">
     <div class="stats">
-      <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="statTotal">0</div><div class="stat-label">Total Produtos</div></div>
+      <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="statTotal">0</div><div class="stat-label">Produtos</div></div>
       <div class="stat-card"><div class="stat-icon">🆕</div><div class="stat-val" id="statNovo">0</div><div class="stat-label">Novos</div></div>
       <div class="stat-card"><div class="stat-icon">♻️</div><div class="stat-val" id="statUsado">0</div><div class="stat-label">Usados</div></div>
-      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="statFeatured">0</div><div class="stat-label">Em Destaque</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="statFeatured">0</div><div class="stat-label">Destaque</div></div>
     </div>
 
     <div class="toolbar">
-      <h2>📋 Produtos Cadastrados</h2>
-      <div class="toolbar-right">
-        <input class="search-input" type="text" placeholder="🔍 Buscar..." id="adminSearch" oninput="filterTable()">
-        <select class="filter-select" id="filterCat" onchange="filterTable()">
-          <option value="">Todas categorias</option>
-          <option value="PC Gamer">PC Gamer</option>
-          <option value="Notebook">Notebook</option>
-          <option value="iPhone">iPhone</option>
-          <option value="Periférico">Periférico</option>
-          <option value="Usado">Usado</option>
-        </select>
-        <button class="btn-setup" onclick="runSetup()">⚙️ Criar Tabela</button>
-      </div>
+      <h2>📋 Produtos</h2>
+      <input class="search-input" type="text" placeholder="🔍 Buscar produto..." id="adminSearch" oninput="filterList()">
+      <select class="filter-select" id="filterCat" onchange="filterList()">
+        <option value="">Todas</option>
+        <option value="PC Gamer">PC Gamer</option>
+        <option value="Notebook">Notebook</option>
+        <option value="iPhone">iPhone</option>
+        <option value="Periférico">Periférico</option>
+        <option value="Usado">Usado</option>
+      </select>
+      <button class="btn-setup" onclick="runSetup()">⚙️ Setup</button>
     </div>
 
-    <div class="table-wrapper">
-      <table>
-        <thead>
-          <tr>
-            <th>Foto</th>
-            <th>Produto</th>
-            <th>Categoria</th>
-            <th>Preço</th>
-            <th>Cond.</th>
-            <th>Estoque</th>
-            <th>⭐</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="productsTable">
-          <tr><td colspan="8" class="empty-table">Carregando...</td></tr>
-        </tbody>
-      </table>
+    <div class="products-list" id="productsList">
+      <div class="empty-list">Carregando...</div>
     </div>
   </div>
 </div>
@@ -309,32 +315,34 @@
     window.location.href = 'login.html';
   }
 
+  // TABS MOBILE
+  function switchTab(tab) {
+    const isForm = tab === 'form';
+    document.getElementById('formPanel').classList.toggle('active', isForm);
+    document.getElementById('mainPanel').classList.toggle('active', !isForm);
+    document.getElementById('tabForm').classList.toggle('active', isForm);
+    document.getElementById('tabProducts').classList.toggle('active', !isForm);
+    window.scrollTo(0, 0);
+  }
+
   let products = [];
   let deleteId = null;
-  // newImages: base64 strings a serem enviadas (novas)
-  // existingImages: [{id, image_data}] já salvas no banco (ao editar)
-  // removedImageIds: ids a deletar do banco
   let newImages = [];
   let existingImages = [];
   let removedImageIds = [];
-
   const categoryIcons = { 'PC Gamer':'🖥️','Notebook':'💻','iPhone':'📱','Periférico':'🖱️','Usado':'♻️' };
 
-  // DRAG & DROP
+  // UPLOAD
   const uploadArea = document.getElementById('uploadArea');
-  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag'); });
-  uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag'));
-  uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.classList.remove('drag'); handleFiles(e.dataTransfer.files); });
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = 'var(--primary)'; });
+  uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = '#333');
+  uploadArea.addEventListener('drop', e => { e.preventDefault(); uploadArea.style.borderColor = '#333'; handleFiles(e.dataTransfer.files); });
 
   function handleFiles(files) {
-    const toRead = Array.from(files);
-    toRead.forEach(file => {
+    Array.from(files).forEach(file => {
       if (!file.type.startsWith('image/')) return;
       const reader = new FileReader();
-      reader.onload = e => {
-        newImages.push(e.target.result);
-        renderImagesGrid();
-      };
+      reader.onload = e => { newImages.push(e.target.result); renderImagesGrid(); };
       reader.readAsDataURL(file);
     });
   }
@@ -342,70 +350,64 @@
   function renderImagesGrid() {
     const grid = document.getElementById('imagesGrid');
     const total = existingImages.length + newImages.length;
-    document.getElementById('imgCount').textContent = total ? `${total} imagem(ns) selecionada(s)` : '';
-
-    const existingHTML = existingImages.map((img, i) => `
-      <div class="img-thumb">
-        <img src="${img.image_data}">
-        ${i === 0 ? '<span class="main-badge">CAPA</span>' : ''}
-        <button class="remove-img" onclick="removeExistingImage(${img.id}, ${i})">✕</button>
-      </div>`).join('');
-
-    const newHTML = newImages.map((b64, i) => `
-      <div class="img-thumb">
-        <img src="${b64}">
-        ${existingImages.length === 0 && i === 0 ? '<span class="main-badge">CAPA</span>' : ''}
-        <button class="remove-img" onclick="removeNewImage(${i})">✕</button>
-      </div>`).join('');
-
-    grid.innerHTML = existingHTML + newHTML;
+    document.getElementById('imgCount').textContent = total ? `${total} imagem(ns)` : '';
+    grid.innerHTML =
+      existingImages.map((img, i) => `
+        <div class="img-thumb">
+          <img src="${img.image_data}">
+          ${i === 0 ? '<span class="main-badge">CAPA</span>' : ''}
+          <button class="remove-img" onclick="removeExistingImage(${img.id},${i})">✕</button>
+        </div>`).join('') +
+      newImages.map((b64, i) => `
+        <div class="img-thumb">
+          <img src="${b64}">
+          ${existingImages.length === 0 && i === 0 ? '<span class="main-badge">CAPA</span>' : ''}
+          <button class="remove-img" onclick="removeNewImage(${i})">✕</button>
+        </div>`).join('');
   }
 
-  function removeExistingImage(id, idx) {
-    removedImageIds.push(id);
-    existingImages.splice(idx, 1);
-    renderImagesGrid();
-  }
-
-  function removeNewImage(idx) {
-    newImages.splice(idx, 1);
-    renderImagesGrid();
-  }
+  function removeExistingImage(id, idx) { removedImageIds.push(id); existingImages.splice(idx, 1); renderImagesGrid(); }
+  function removeNewImage(idx) { newImages.splice(idx, 1); renderImagesGrid(); }
 
   // PRODUTOS
   async function loadProducts() {
     try {
       const res = await fetch(API);
       products = await res.json();
-      renderTable(products);
+      renderList(products);
       updateStats();
     } catch { showToast('Erro ao carregar produtos', 'error'); }
   }
 
-  function renderTable(list) {
-    const tbody = document.getElementById('productsTable');
+  function renderList(list) {
+    const container = document.getElementById('productsList');
     document.getElementById('totalBadge').textContent = `${list.length} produto${list.length!==1?'s':''}`;
     if (!list.length) {
-      tbody.innerHTML = '<tr><td colspan="8" class="empty-table">Nenhum produto cadastrado ainda.</td></tr>';
+      container.innerHTML = '<div class="empty-list">📦 Nenhum produto cadastrado ainda.</div>';
       return;
     }
-    tbody.innerHTML = list.map(p => {
+    container.innerHTML = list.map(p => {
       const thumb = p.thumbnail
         ? `<img src="${p.thumbnail}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">`
         : (categoryIcons[p.category]||'📦');
-      return `<tr>
-        <td><div class="td-img">${thumb}</div></td>
-        <td><div class="td-name" title="${p.name}">${p.name}</div></td>
-        <td><div class="td-cat">${p.category||'—'}</div></td>
-        <td><div class="td-price">R$ ${Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div></td>
-        <td><span class="cond-badge ${p.condition==='usado'?'cond-usado':'cond-novo'}">${p.condition}</span></td>
-        <td>${p.stock}</td>
-        <td><span class="featured-toggle" onclick="toggleFeatured(${p.id},${!p.featured})">${p.featured?'⭐':'☆'}</span></td>
-        <td><div class="actions">
-          <button class="btn-edit" onclick="editProduct(${p.id})">✏️ Editar</button>
-          <button class="btn-delete" onclick="askDelete(${p.id})">🗑️</button>
-        </div></td>
-      </tr>`;
+      return `
+      <div class="product-row">
+        <div class="prod-thumb">${thumb}</div>
+        <div class="prod-info">
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-meta">
+            <span class="prod-price">R$ ${Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+            <span class="prod-cat">${p.category||''}</span>
+            <span class="cond-badge ${p.condition==='usado'?'cond-usado':'cond-novo'}">${p.condition}</span>
+            <span class="prod-stock">Estoque: ${p.stock}</span>
+          </div>
+          <div class="prod-actions">
+            <button class="btn-edit" onclick="editProduct(${p.id})">✏️ Editar</button>
+            <button class="btn-delete" onclick="askDelete(${p.id})">🗑️ Excluir</button>
+            <span class="featured-toggle" onclick="toggleFeatured(${p.id},${!p.featured})">${p.featured?'⭐':'☆'}</span>
+          </div>
+        </div>
+      </div>`;
     }).join('');
   }
 
@@ -416,14 +418,13 @@
     document.getElementById('statFeatured').textContent = products.filter(p=>p.featured).length;
   }
 
-  function filterTable() {
+  function filterList() {
     const q = document.getElementById('adminSearch').value.toLowerCase();
     const cat = document.getElementById('filterCat').value;
-    const filtered = products.filter(p =>
+    renderList(products.filter(p =>
       (!q || p.name.toLowerCase().includes(q) || (p.description||'').toLowerCase().includes(q)) &&
       (!cat || p.category === cat)
-    );
-    renderTable(filtered);
+    ));
   }
 
   async function submitProduct() {
@@ -454,25 +455,22 @@
       const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
       if (!res.ok) throw new Error(await res.text());
       const saved = await res.json();
-      const productId = saved.id;
 
-      // Deletar imagens removidas
       for (const imgId of removedImageIds) {
         await fetch(`${IMG_API}?id=${imgId}`, { method: 'DELETE' });
       }
-
-      // Salvar novas imagens
       if (newImages.length) {
         await fetch(IMG_API, {
           method: 'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ product_id: productId, images: newImages })
+          body: JSON.stringify({ product_id: saved.id, images: newImages })
         });
       }
 
       showToast(editId ? '✅ Produto atualizado!' : '✅ Produto cadastrado!', 'success');
       resetForm();
       loadProducts();
+      switchTab('products');
     } catch(e) {
       showToast('Erro: ' + e.message, 'error');
     } finally {
@@ -492,11 +490,10 @@
     document.getElementById('condition').value = p.condition || 'novo';
     document.getElementById('stock').value = p.stock || 0;
     document.getElementById('featured').checked = p.featured || false;
-    document.getElementById('formTitle').textContent = '✏️ Editar Produto';
+    document.getElementById('formTitle').textContent = '✏️ Editar: ' + p.name;
     document.getElementById('submitBtn').textContent = '💾 Salvar Alterações';
     document.getElementById('cancelBtn').style.display = 'block';
 
-    // Carregar imagens existentes
     newImages = [];
     removedImageIds = [];
     try {
@@ -504,14 +501,13 @@
       existingImages = await res.json();
     } catch { existingImages = []; }
     renderImagesGrid();
-    document.querySelector('.form-panel').scrollTop = 0;
+    switchTab('form');
+    window.scrollTo(0, 0);
   }
 
   function resetForm() {
     document.getElementById('editId').value = '';
-    document.getElementById('name').value = '';
-    document.getElementById('description').value = '';
-    document.getElementById('price').value = '';
+    ['name','description','price'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('category').value = '';
     document.getElementById('condition').value = 'novo';
     document.getElementById('stock').value = '1';
@@ -522,9 +518,7 @@
     document.getElementById('formTitle').textContent = '➕ Novo Produto';
     document.getElementById('submitBtn').textContent = '➕ Cadastrar Produto';
     document.getElementById('cancelBtn').style.display = 'none';
-    newImages = [];
-    existingImages = [];
-    removedImageIds = [];
+    newImages = []; existingImages = []; removedImageIds = [];
   }
 
   function askDelete(id) { deleteId = id; document.getElementById('confirmOverlay').classList.add('open'); }
@@ -545,8 +539,7 @@
     if (!p) return;
     try {
       await fetch(`${API}?id=${id}`, {
-        method: 'PUT',
-        headers: {'Content-Type':'application/json'},
+        method: 'PUT', headers: {'Content-Type':'application/json'},
         body: JSON.stringify({ ...p, featured })
       });
       loadProducts();
