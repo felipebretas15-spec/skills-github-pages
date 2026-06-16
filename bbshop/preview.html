@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBShop - Escolha seu Template</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; padding: 30px; }
+  h1 { text-align: center; font-size: 2rem; margin-bottom: 8px; color: #fff; }
+  p.sub { text-align: center; color: #aaa; margin-bottom: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; max-width: 1100px; margin: 0 auto; }
+  .card { border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid transparent; }
+  .card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); border-color: #fff3; }
+  .card .label { font-size: 1.1rem; font-weight: 700; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .card .label span { font-size: 0.8rem; font-weight: 400; opacity: 0.7; }
+  .preview-frame { height: 380px; overflow: hidden; position: relative; }
+
+  /* ===== TEMPLATE 1: DARK GAMER ===== */
+  .t1 .label { background: #0d0d0d; color: #b44fff; }
+  .t1 .preview-frame { background: #0d0d0d; }
+  .t1-inner { height: 100%; display: flex; flex-direction: column; }
+  .t1-nav { background: #111; padding: 10px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #b44fff; }
+  .t1-nav .logo { color: #b44fff; font-weight: 900; font-size: 1rem; letter-spacing: 2px; }
+  .t1-nav .items { display: flex; gap: 12px; margin-left: auto; }
+  .t1-nav .items span { color: #ccc; font-size: 0.65rem; }
+  .t1-hero { background: linear-gradient(135deg, #1a0a2e 0%, #0d0d0d 100%); padding: 20px; display: flex; align-items: center; gap: 20px; flex: 1; }
+  .t1-hero-text h2 { color: #b44fff; font-size: 1.1rem; text-shadow: 0 0 20px #b44fff88; }
+  .t1-hero-text p { color: #888; font-size: 0.65rem; margin-top: 4px; }
+  .t1-btn { margin-top: 10px; background: #b44fff; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.65rem; cursor: pointer; }
+  .t1-mockpc { width: 90px; height: 70px; background: linear-gradient(135deg, #2a0a4e, #1a0a2e); border: 1px solid #b44fff44; border-radius: 8px; margin-left: auto; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 20px #b44fff44; }
+  .t1-products { display: flex; gap: 8px; padding: 12px 20px; background: #111; }
+  .t1-card { background: #1a1a1a; border: 1px solid #b44fff33; border-radius: 6px; padding: 8px; flex: 1; }
+  .t1-card .icon { font-size: 1.4rem; display: block; text-align: center; }
+  .t1-card .name { color: #ddd; font-size: 0.55rem; text-align: center; margin-top: 4px; }
+  .t1-card .price { color: #b44fff; font-size: 0.65rem; text-align: center; font-weight: 700; margin-top: 2px; }
+
+  /* ===== TEMPLATE 2: TECH CLEAN ===== */
+  .t2 .label { background: #f0f4ff; color: #1a56db; }
+  .t2 .preview-frame { background: #f5f7fa; }
+  .t2-inner { height: 100%; display: flex; flex-direction: column; }
+  .t2-nav { background: #1a56db; padding: 10px 20px; display: flex; align-items: center; gap: 10px; }
+  .t2-nav .logo { color: #fff; font-weight: 900; font-size: 1rem; }
+  .t2-search { background: #fff; border-radius: 20px; padding: 4px 12px; font-size: 0.6rem; color: #999; margin: 0 auto; width: 40%; }
+  .t2-nav .cart { color: #fff; font-size: 0.65rem; margin-left: auto; }
+  .t2-cats { display: flex; gap: 6px; padding: 8px 20px; background: #fff; border-bottom: 1px solid #e0e6f0; }
+  .t2-cats span { font-size: 0.55rem; color: #1a56db; background: #e8f0fe; padding: 3px 8px; border-radius: 12px; }
+  .t2-hero { background: linear-gradient(90deg, #1a56db 0%, #3b82f6 100%); padding: 20px; display: flex; align-items: center; }
+  .t2-hero-text h2 { color: #fff; font-size: 1rem; }
+  .t2-hero-text p { color: #bdd7ff; font-size: 0.6rem; margin-top: 4px; }
+  .t2-btn { margin-top: 10px; background: #fff; color: #1a56db; border: none; padding: 5px 14px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; }
+  .t2-img { font-size: 2.5rem; margin-left: auto; }
+  .t2-products { display: flex; gap: 8px; padding: 12px 20px; background: #f5f7fa; flex: 1; }
+  .t2-card { background: #fff; border: 1px solid #e0e6f0; border-radius: 8px; padding: 10px; flex: 1; box-shadow: 0 2px 8px #0001; }
+  .t2-card .icon { font-size: 1.4rem; display: block; text-align: center; }
+  .t2-card .name { color: #333; font-size: 0.55rem; text-align: center; margin-top: 4px; }
+  .t2-card .price { color: #1a56db; font-size: 0.65rem; text-align: center; font-weight: 700; margin-top: 2px; }
+
+  /* ===== TEMPLATE 3: BOLD ORANGE ===== */
+  .t3 .label { background: #1c1c1c; color: #ff6b00; }
+  .t3 .preview-frame { background: #1c1c1c; }
+  .t3-inner { height: 100%; display: flex; flex-direction: column; }
+  .t3-nav { background: #111; padding: 10px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 3px solid #ff6b00; }
+  .t3-nav .logo { color: #ff6b00; font-weight: 900; font-size: 1rem; }
+  .t3-nav .items { display: flex; gap: 12px; margin-left: auto; }
+  .t3-nav .items span { color: #ccc; font-size: 0.65rem; }
+  .t3-banner { background: linear-gradient(135deg, #ff6b00, #ff3d00); padding: 16px 20px; display: flex; align-items: center; }
+  .t3-banner-text h2 { color: #fff; font-size: 1rem; font-weight: 900; }
+  .t3-banner-text p { color: #ffd4b8; font-size: 0.6rem; margin-top: 2px; }
+  .t3-badge { background: #fff; color: #ff6b00; font-weight: 900; font-size: 0.7rem; padding: 6px 12px; border-radius: 4px; margin-left: auto; }
+  .t3-promo { display: flex; gap: 0; padding: 10px 20px; background: #222; }
+  .t3-promo-item { flex: 1; text-align: center; padding: 6px; border-right: 1px solid #333; }
+  .t3-promo-item:last-child { border-right: none; }
+  .t3-promo-item .icon { font-size: 1.2rem; }
+  .t3-promo-item .name { color: #aaa; font-size: 0.5rem; margin-top: 2px; }
+  .t3-promo-item .price { color: #ff6b00; font-size: 0.65rem; font-weight: 700; }
+  .t3-products { display: flex; gap: 8px; padding: 10px 20px; flex: 1; background: #1c1c1c; }
+  .t3-card { background: #2a2a2a; border: 1px solid #ff6b0033; border-radius: 6px; padding: 8px; flex: 1; }
+  .t3-card .icon { font-size: 1.4rem; display: block; text-align: center; }
+  .t3-card .name { color: #ddd; font-size: 0.55rem; text-align: center; margin-top: 4px; }
+  .t3-card .price { color: #ff6b00; font-size: 0.65rem; text-align: center; font-weight: 700; margin-top: 2px; }
+
+  /* ===== TEMPLATE 4: MINIMAL WHITE ===== */
+  .t4 .label { background: #fff; color: #1a1a1a; border-top: 3px solid #c9a84c; }
+  .t4 .preview-frame { background: #fff; }
+  .t4-inner { height: 100%; display: flex; flex-direction: column; }
+  .t4-nav { background: #fff; padding: 10px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #eee; }
+  .t4-nav .logo { color: #1a1a1a; font-weight: 900; font-size: 1rem; letter-spacing: 3px; }
+  .t4-nav .logo span { color: #c9a84c; }
+  .t4-nav .items { display: flex; gap: 16px; margin-left: auto; }
+  .t4-nav .items span { color: #666; font-size: 0.6rem; letter-spacing: 1px; text-transform: uppercase; }
+  .t4-hero { background: #f8f8f5; padding: 24px 20px; display: flex; align-items: center; gap: 20px; }
+  .t4-hero-text h2 { color: #1a1a1a; font-size: 1.1rem; font-weight: 300; letter-spacing: 2px; text-transform: uppercase; }
+  .t4-hero-text .line { width: 40px; height: 2px; background: #c9a84c; margin: 8px 0; }
+  .t4-hero-text p { color: #888; font-size: 0.6rem; }
+  .t4-btn { margin-top: 10px; background: #1a1a1a; color: #fff; border: none; padding: 6px 16px; font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase; }
+  .t4-img { font-size: 2.5rem; margin-left: auto; }
+  .t4-products { display: flex; gap: 1px; flex: 1; background: #eee; }
+  .t4-card { background: #fff; padding: 12px; flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .t4-card .icon { font-size: 1.4rem; }
+  .t4-card .name { color: #333; font-size: 0.5rem; text-align: center; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase; }
+  .t4-card .price { color: #c9a84c; font-size: 0.65rem; text-align: center; font-weight: 700; margin-top: 4px; }
+  .t4-card .btn { margin-top: 6px; background: #1a1a1a; color: #fff; border: none; padding: 3px 10px; font-size: 0.5rem; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<h1>BBShop — Escolha o Template</h1>
+<p class="sub">Clique no modelo que mais combina com a sua loja</p>
+
+<div class="grid">
+
+  <!-- TEMPLATE 1: DARK GAMER -->
+  <div class="card t1">
+    <div class="label">🎮 Dark Gamer <span>Fundo escuro · Neon roxo · Visual futurista</span></div>
+    <div class="preview-frame">
+      <div class="t1-inner">
+        <div class="t1-nav">
+          <span class="logo">⚡ BBSHOP</span>
+          <div class="items">
+            <span>PCs Gamer</span><span>Notebooks</span><span>Periféricos</span><span>iPhone</span>
+          </div>
+        </div>
+        <div class="t1-hero">
+          <div class="t1-hero-text">
+            <h2>🔥 POWER UP YOUR SETUP</h2>
+            <p>Computadores, notebooks e iPhones com os melhores preços</p>
+            <button class="t1-btn">VER OFERTAS →</button>
+          </div>
+          <div class="t1-mockpc">🖥️</div>
+        </div>
+        <div class="t1-products">
+          <div class="t1-card"><span class="icon">🖥️</span><div class="name">PC Gamer RTX</div><div class="price">R$ 4.999</div></div>
+          <div class="t1-card"><span class="icon">💻</span><div class="name">Notebook i7</div><div class="price">R$ 3.299</div></div>
+          <div class="t1-card"><span class="icon">📱</span><div class="name">iPhone 14</div><div class="price">R$ 3.799</div></div>
+          <div class="t1-card"><span class="icon">🖱️</span><div class="name">Mouse Gamer</div><div class="price">R$ 199</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE 2: TECH CLEAN -->
+  <div class="card t2">
+    <div class="label" style="color:#1a56db">🔵 Tech Clean <span style="color:#666">Fundo branco · Azul corporativo · Profissional</span></div>
+    <div class="preview-frame">
+      <div class="t2-inner">
+        <div class="t2-nav">
+          <span class="logo">💻 BBShop</span>
+          <div class="t2-search">🔍 Buscar produtos...</div>
+          <span class="cart">🛒 Carrinho</span>
+        </div>
+        <div class="t2-cats">
+          <span>PCs Gamer</span><span>Notebooks</span><span>iPhones</span><span>Periféricos</span><span>Usados</span>
+        </div>
+        <div class="t2-hero">
+          <div class="t2-hero-text">
+            <h2>Tecnologia ao melhor preço</h2>
+            <p>Computadores novos e usados com garantia</p>
+            <button class="t2-btn">COMPRAR AGORA</button>
+          </div>
+          <div class="t2-img">🖥️</div>
+        </div>
+        <div class="t2-products">
+          <div class="t2-card"><span class="icon">🖥️</span><div class="name">PC Gamer RTX</div><div class="price">R$ 4.999</div></div>
+          <div class="t2-card"><span class="icon">💻</span><div class="name">Notebook i7</div><div class="price">R$ 3.299</div></div>
+          <div class="t2-card"><span class="icon">📱</span><div class="name">iPhone 14</div><div class="price">R$ 3.799</div></div>
+          <div class="t2-card"><span class="icon">🖱️</span><div class="name">Mouse Gamer</div><div class="price">R$ 199</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE 3: BOLD ORANGE -->
+  <div class="card t3">
+    <div class="label">🟠 Bold Orange <span>Fundo escuro · Laranja vibrante · Foco em promoções</span></div>
+    <div class="preview-frame">
+      <div class="t3-inner">
+        <div class="t3-nav">
+          <span class="logo">🔥 BBSHOP</span>
+          <div class="items">
+            <span>PCs</span><span>Notebooks</span><span>iPhone</span><span>Usados</span>
+          </div>
+        </div>
+        <div class="t3-banner">
+          <div class="t3-banner-text">
+            <h2>OFERTA RELÂMPAGO ⚡</h2>
+            <p>Até 40% OFF em PCs Gamer e Notebooks</p>
+          </div>
+          <div class="t3-badge">VER TUDO</div>
+        </div>
+        <div class="t3-promo">
+          <div class="t3-promo-item"><div class="icon">🖥️</div><div class="name">PC Gamer</div><div class="price">R$ 4.999</div></div>
+          <div class="t3-promo-item"><div class="icon">💻</div><div class="name">Notebook</div><div class="price">R$ 3.299</div></div>
+          <div class="t3-promo-item"><div class="icon">📱</div><div class="name">iPhone 14</div><div class="price">R$ 3.799</div></div>
+          <div class="t3-promo-item"><div class="icon">⌨️</div><div class="name">Teclado</div><div class="price">R$ 299</div></div>
+          <div class="t3-promo-item"><div class="icon">🖱️</div><div class="name">Mouse</div><div class="price">R$ 199</div></div>
+        </div>
+        <div class="t3-products">
+          <div class="t3-card"><span class="icon">🖥️</span><div class="name">PC Usado i5</div><div class="price">R$ 1.899</div></div>
+          <div class="t3-card"><span class="icon">💻</span><div class="name">NB Usado i7</div><div class="price">R$ 2.199</div></div>
+          <div class="t3-card"><span class="icon">📱</span><div class="name">iPhone 12</div><div class="price">R$ 2.499</div></div>
+          <div class="t3-card"><span class="icon">🎧</span><div class="name">Headset</div><div class="price">R$ 349</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEMPLATE 4: MINIMAL WHITE -->
+  <div class="card t4">
+    <div class="label" style="color:#1a1a1a; background:#fff; border-top: 3px solid #c9a84c;">✨ Minimal Premium <span style="color:#999">Branco · Dourado · Elegante</span></div>
+    <div class="preview-frame">
+      <div class="t4-inner">
+        <div class="t4-nav">
+          <span class="logo">BB<span>SHOP</span></span>
+          <div class="items">
+            <span>GAMER</span><span>MOBILE</span><span>USADOS</span><span>🛒</span>
+          </div>
+        </div>
+        <div class="t4-hero">
+          <div class="t4-hero-text">
+            <h2>Tecnologia & Qualidade</h2>
+            <div class="line"></div>
+            <p>Computadores, notebooks e iPhones selecionados</p>
+            <button class="t4-btn">EXPLORAR</button>
+          </div>
+          <div class="t4-img">💻</div>
+        </div>
+        <div class="t4-products">
+          <div class="t4-card"><span class="icon">🖥️</span><div class="name">PC Gamer</div><div class="price">R$ 4.999</div><button class="t4-btn">VER</button></div>
+          <div class="t4-card"><span class="icon">💻</span><div class="name">Notebook</div><div class="price">R$ 3.299</div><button class="t4-btn">VER</button></div>
+          <div class="t4-card"><span class="icon">📱</span><div class="name">iPhone 14</div><div class="price">R$ 3.799</div><button class="t4-btn">VER</button></div>
+          <div class="t4-card"><span class="icon">🖱️</span><div class="name">Periférico</div><div class="price">R$ 199</div><button class="t4-btn">VER</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="text-align:center; color:#666; margin-top:30px; font-size:0.85rem;">Diga o número ou nome do template escolhido para começarmos!</p>
+
+</body>
+</html>
