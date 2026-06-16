@@ -78,9 +78,21 @@
   .modal-overlay { display: none; position: fixed; inset: 0; background: #000a; z-index: 1000; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
   .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; }
-  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; }
-  .modal-img { width: 100%; height: 240px; background: var(--bg3); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 6rem; margin-bottom: 20px; overflow: hidden; }
-  .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(0,0,0,0.6); border: none; color: #fff; font-size: 1.2rem; cursor: pointer; z-index: 10; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+
+  /* CARROSSEL */
+  .carousel { position: relative; width: 100%; height: 260px; background: var(--bg3); border-radius: 12px; overflow: hidden; margin-bottom: 20px; touch-action: pan-y; }
+  .carousel-track { display: flex; height: 100%; transition: transform 0.3s ease; will-change: transform; }
+  .carousel-slide { min-width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 6rem; flex-shrink: 0; }
+  .carousel-slide img { width: 100%; height: 100%; object-fit: contain; padding: 10px; }
+  .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1rem; cursor: pointer; z-index: 5; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .carousel-btn:hover { background: var(--primary); }
+  .carousel-prev { left: 10px; }
+  .carousel-next { right: 10px; }
+  .carousel-dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+  .carousel-dot { width: 7px; height: 7px; border-radius: 50%; background: #ffffff44; cursor: pointer; transition: background 0.2s; }
+  .carousel-dot.active { background: var(--primary); }
+  .carousel-counter { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.75rem; padding: 3px 8px; border-radius: 10px; }
   .modal h2 { font-size: 1.4rem; color: #fff; margin-bottom: 8px; }
   .modal .modal-price { font-size: 1.8rem; font-weight: 900; color: var(--primary); margin: 10px 0; }
   .modal .modal-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; }
@@ -190,7 +202,13 @@
 <div class="modal-overlay" id="productModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-img" id="modalImg"></div>
+    <div class="carousel" id="modalCarousel">
+      <div class="carousel-track" id="carouselTrack"></div>
+      <button class="carousel-btn carousel-prev" id="carouselPrev" onclick="carouselMove(-1)">‹</button>
+      <button class="carousel-btn carousel-next" id="carouselNext" onclick="carouselMove(1)">›</button>
+      <div class="carousel-dots" id="carouselDots"></div>
+      <div class="carousel-counter" id="carouselCounter"></div>
+    </div>
     <div class="product-category" id="modalCategory"></div>
     <h2 id="modalName"></h2>
     <div class="modal-price" id="modalPrice"></div>
@@ -218,14 +236,76 @@
 
 <script>
   const API = '/.netlify/functions/products';
+  const IMG_API = '/.netlify/functions/images';
   let allProducts = [];
   let cart = JSON.parse(localStorage.getItem('bbshop_cart') || '[]');
   let currentProduct = null;
+  let carouselIndex = 0;
+  let carouselImages = [];
 
   const categoryIcons = {
     'PC Gamer': '🖥️', 'Notebook': '💻', 'iPhone': '📱',
     'Periférico': '🖱️', 'Usado': '♻️', 'default': '📦'
   };
+
+  // CARROSSEL
+  function buildCarousel(images, fallbackIcon) {
+    carouselImages = images;
+    carouselIndex = 0;
+    const track = document.getElementById('carouselTrack');
+    const dots = document.getElementById('carouselDots');
+    const prev = document.getElementById('carouselPrev');
+    const next = document.getElementById('carouselNext');
+
+    if (!images.length) {
+      track.innerHTML = `<div class="carousel-slide">${fallbackIcon}</div>`;
+      dots.innerHTML = '';
+      document.getElementById('carouselCounter').textContent = '';
+      prev.style.display = 'none';
+      next.style.display = 'none';
+      return;
+    }
+
+    track.innerHTML = images.map(src => `
+      <div class="carousel-slide">
+        <img src="${src}" onerror="this.parentElement.innerHTML='${fallbackIcon}'">
+      </div>`).join('');
+
+    dots.innerHTML = images.length > 1
+      ? images.map((_, i) => `<div class="carousel-dot ${i===0?'active':''}" onclick="carouselGoTo(${i})"></div>`).join('')
+      : '';
+
+    prev.style.display = images.length > 1 ? 'flex' : 'none';
+    next.style.display = images.length > 1 ? 'flex' : 'none';
+    updateCarouselCounter();
+    setupCarouselSwipe();
+  }
+
+  function carouselMove(dir) {
+    carouselGoTo((carouselIndex + dir + carouselImages.length) % carouselImages.length);
+  }
+
+  function carouselGoTo(idx) {
+    carouselIndex = idx;
+    document.getElementById('carouselTrack').style.transform = `translateX(-${idx * 100}%)`;
+    document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+    updateCarouselCounter();
+  }
+
+  function updateCarouselCounter() {
+    const el = document.getElementById('carouselCounter');
+    el.textContent = carouselImages.length > 1 ? `${carouselIndex + 1} / ${carouselImages.length}` : '';
+  }
+
+  function setupCarouselSwipe() {
+    const carousel = document.getElementById('modalCarousel');
+    let startX = 0;
+    carousel.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+    carousel.addEventListener('touchend', e => {
+      const diff = startX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) carouselMove(diff > 0 ? 1 : -1);
+    }, { passive: true });
+  }
 
   async function loadProducts() {
     try {
@@ -280,13 +360,12 @@
     renderProducts(filtered);
   }
 
-  function openProduct(id) {
+  async function openProduct(id) {
     currentProduct = allProducts.find(p => p.id == id);
     if (!currentProduct) return;
     const p = currentProduct;
-    const modalImgSrc = p.thumbnail || p.image_url;
-    document.getElementById('modalImg').innerHTML = modalImgSrc
-      ? `<img src="${modalImgSrc}" alt="${p.name}" onerror="this.parentElement.innerHTML='${categoryIcons[p.category]||'📦'}'">` : (categoryIcons[p.category]||'📦');
+    const icon = categoryIcons[p.category] || '📦';
+
     document.getElementById('modalCategory').textContent = p.category || '';
     document.getElementById('modalName').textContent = p.name;
     document.getElementById('modalPrice').textContent = 'R$ ' + Number(p.price).toLocaleString('pt-BR',{minimumFractionDigits:2});
@@ -294,6 +373,16 @@
     document.getElementById('modalDesc').textContent = p.description || '';
     document.getElementById('modalCartBtn').onclick = () => { addToCart(p.id); closeModal(); };
     document.getElementById('productModal').classList.add('open');
+
+    // Mostra thumb enquanto carrega o resto
+    buildCarousel(p.thumbnail ? [p.thumbnail] : [], icon);
+    try {
+      const res = await fetch(`${IMG_API}?product_id=${id}`);
+      const imgs = await res.json();
+      buildCarousel(imgs.length ? imgs.map(i => i.image_data) : (p.thumbnail ? [p.thumbnail] : []), icon);
+    } catch {
+      buildCarousel(p.thumbnail ? [p.thumbnail] : [], icon);
+    }
   }
 
   function closeModal() { document.getElementById('productModal').classList.remove('open'); }
